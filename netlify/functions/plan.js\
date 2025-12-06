@@ -1,0 +1,458 @@
+const headers = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+// Map age 18–40 to a phase
+function getPhaseForAge(age) {
+  if (age <= 21) return "learn";      // 18–21
+  if (age <= 27) return "build";      // 22–27
+  if (age <= 33) return "scale";      // 28–33
+  return "lead";                      // 34–40
+}
+
+const phaseLabels = {
+  learn: "Learn phase (18–21)",
+  build: "Build phase (22–27)",
+  scale: "Scale phase (28–33)",
+  lead: "Lead phase (34–40)",
+};
+
+// Core data: 4 phases per founder
+const idolData = {
+  elon_musk: {
+    learn: {
+      summary:
+        "Early phase: leaving South Africa, moving to Canada, taking random jobs and obsessively reading about physics, engineering and sci-fi while at university.",
+      skills: ["Self-directed learning", "Basic programming", "Physics mindset"],
+      environment:
+        "Student life, low money, high curiosity. Lots of reading, thinking and basic coding.",
+      idolIntensity: "50–60 hours/week across work, study and reading.",
+    },
+    build: {
+      summary:
+        "Zip2 and early startup phase. Musk is coding, selling to newspapers and literally sleeping in the office.",
+      skills: [
+        "Full-stack coding",
+        "Sales",
+        "Product iteration",
+        "Extreme work ethic",
+      ],
+      environment:
+        "Tiny startup office, cheap furniture, shared desks. Constant shipping and pitching.",
+      idolIntensity: "80–100 hours/week almost entirely on the startup.",
+    },
+    scale: {
+      summary:
+        "Post-PayPal, launching SpaceX and pushing into Tesla. High technical and financial risk with multiple companies at once.",
+      skills: ["Systems thinking", "Fundraising", "Technical leadership"],
+      environment:
+        "Deep-tech startups with huge burn, high uncertainty and brutal schedules.",
+      idolIntensity:
+        "Very high. Practically all waking hours across multiple companies.",
+    },
+    lead: {
+      summary:
+        "Running multiple large organisations (SpaceX, Tesla, others), still involved in engineering decisions but more leveraged through teams.",
+      skills: ["Vision", "Capital allocation", "High-stakes decision making"],
+      environment:
+        "Thousands of employees, global operations, media and regulatory pressure.",
+      idolIntensity:
+        "Still intense, but a lot of impact comes from deciding and delegating not raw coding hours.",
+    },
+  },
+
+  mark_zuckerberg: {
+    learn: {
+      summary:
+        "Hacker-student era: building tools, games and simple social apps for fun while at school and Harvard.",
+      skills: ["Coding", "Product sense", "Rapid experimentation"],
+      environment:
+        "Dorm rooms and bedrooms, shipping small things quickly and iterating.",
+      idolIntensity:
+        "40–60 hours/week of coding and side projects on top of classes.",
+    },
+    build: {
+      summary:
+        "Early Facebook: moving to Palo Alto, small team, writing lots of backend code and shipping features fast.",
+      skills: ["Backend engineering", "Product design", "Early leadership"],
+      environment:
+        "Small rented houses as offices, a handful of engineers, very fast iteration.",
+      idolIntensity: "70–90 hours/week building and growing the product.",
+    },
+    scale: {
+      summary:
+        "Facebook in fast-growth mode: big engineering org, many teams, Zuck driving product vision and key decisions.",
+      skills: ["Leadership", "Org design", "High-level product strategy"],
+      environment:
+        "Large company, complex culture, multiple layers of management.",
+      idolIntensity:
+        "Very high, but more meetings, reviews and strategy than raw coding.",
+    },
+    lead: {
+      summary:
+        "Public-company CEO: balancing regulators, investors, product, culture and long-term bets like VR/AI.",
+      skills: [
+        "Public leadership",
+        "Long-term strategy",
+        "Risk management at scale",
+      ],
+      environment:
+        "Board meetings, regulatory hearings, global workforce and user base.",
+      idolIntensity:
+        "High leverage. Impact through decisions, teams and capital rather than personal grind hours.",
+    },
+  },
+
+  jensen_huang: {
+    learn: {
+      summary:
+        "Student phase: heavy electrical engineering coursework, maths and early exposure to chips and hardware.",
+      skills: ["Maths", "Physics", "Discipline", "Foundational EE knowledge"],
+      environment:
+        "University labs, textbooks, problem sets. Very little glamour, lots of fundamentals.",
+      idolIntensity: "50–60 hours/week of serious technical study.",
+    },
+    build: {
+      summary:
+        "Early engineering roles: working on hardware and low-level systems, building real products inside established companies.",
+      skills: [
+        "Semiconductor basics",
+        "Hardware-systems thinking",
+        "Low-level programming",
+      ],
+      environment:
+        "Engineering teams, lab work, design reviews, debugging ugly technical issues.",
+      idolIntensity:
+        "50–70 hours/week of focused engineering and self-study after work.",
+    },
+    scale: {
+      summary:
+        "Founding and growing NVIDIA: combining deep technical knowledge with a strong vision for GPUs and graphics computing.",
+      skills: [
+        "Technical leadership",
+        "Hiring top engineers",
+        "Strategic product direction",
+      ],
+      environment: "Early deep-tech startup environment, high technical risk.",
+      idolIntensity:
+        "Very high. Lots of technical discussions plus fundraising and company building.",
+    },
+    lead: {
+      summary:
+        "Running a global semiconductor leader, making big bets on AI, GPUs and data-center infrastructure.",
+      skills: ["Strategic leadership", "Market timing", "Capital allocation"],
+      environment:
+        "Large public company, geopolitical and supply-chain constraints, massive R&D budgets.",
+      idolIntensity:
+        "High leverage, more about choosing the right bets and people than personal engineering time.",
+    },
+  },
+
+  larry_ellison: {
+    learn: {
+      summary:
+        "Dropping in and out of college, doing odd jobs and teaching himself programming without a clean academic path.",
+      skills: ["Self-teaching", "Basic programming", "Persistence"],
+      environment: "Cheap apartments, unstable work, lots of solo learning.",
+      idolIntensity:
+        "Inconsistent but high when focused: long nights of reading and coding.",
+    },
+    build: {
+      summary:
+        "Working low-level programming and database jobs in Berkeley while forming the ideas that became Oracle.",
+      skills: [
+        "C programming",
+        "Database fundamentals",
+        "Unix / OS understanding",
+      ],
+      environment:
+        "Small tech companies, real customer projects, intense self-study after hours.",
+      idolIntensity:
+        "50–70 hours/week across paid work and personal exploration.",
+    },
+    scale: {
+      summary:
+        "Early Oracle: aggressively building a database product and selling into enterprises.",
+      skills: ["Enterprise sales", "Product positioning", "Leadership"],
+      environment:
+        "Early enterprise startup, complex customer requirements, hard sales cycles.",
+      idolIntensity:
+        "Very high. Travel, sales calls, product decisions and hiring.",
+    },
+    lead: {
+      summary:
+        "Running a dominant enterprise database company, competing on large deals and long-term contracts.",
+      skills: ["Enterprise strategy", "Negotiation", "Executive leadership"],
+      environment:
+        "Large corporate context, big customers, long sales cycles, heavy politics.",
+      idolIntensity:
+        "High leverage through senior teams and processes, not coding.",
+    },
+  },
+
+  jeff_bezos: {
+    learn: {
+      summary:
+        "Top student phase: strong performance in maths and science, moving towards engineering and computer science.",
+      skills: ["Maths", "Logic", "Discipline"],
+      environment:
+        "Academic environment with high expectations and heavy coursework.",
+      idolIntensity:
+        "High workload but structured – lots of studying and problem-solving.",
+    },
+    build: {
+      summary:
+        "Wall Street tech roles: building trading and risk systems after graduating in EECS.",
+      skills: [
+        "Systems design",
+        "Software engineering",
+        "Reliability thinking",
+      ],
+      environment:
+        "Demanding finance/tech firms where software failure costs real money.",
+      idolIntensity:
+        "60–80 hours/week of serious engineering and project work.",
+    },
+    scale: {
+      summary:
+        "Founding and growing Amazon: leaving a high-paid job, moving to Seattle, coding early versions and building the online bookstore.",
+      skills: [
+        "Risk taking",
+        "Customer obsession",
+        "Early-stage company building",
+      ],
+      environment:
+        "Tiny startup with limited resources and a long-term vision others think is crazy.",
+      idolIntensity:
+        "Very high. Founder grind across tech, ops, hiring and fundraising.",
+    },
+    lead: {
+      summary:
+        "Running a massive ecommerce and cloud company, focused on long-term bets and operational excellence.",
+      skills: [
+        "Long-term strategy",
+        "Capital allocation",
+        "High-level operational design",
+      ],
+      environment:
+        "Public company with global logistics, AWS, and relentless focus on efficiency.",
+      idolIntensity:
+        "High leverage. Impact driven by mechanisms, culture and capital.",
+    },
+  },
+
+  travis_kalanick: {
+    learn: {
+      summary:
+        "Self-taught hacker: building small projects, learning to code and hustling with early ideas.",
+      skills: ["Scrappy programming", "Experimentation", "Hustle"],
+      environment: "Cheap living, lots of online time, trying things quickly.",
+      idolIntensity:
+        "Varies, but when locked in he spends most waking hours on projects.",
+    },
+    build: {
+      summary:
+        "Scour era: building a P2P file-sharing startup, coding heavily and fighting legal pressure.",
+      skills: [
+        "Startup coding",
+        "Operating under legal/business risk",
+        "Growth hacking",
+      ],
+      environment:
+        "Early-stage startup chaos, lawsuits from big media companies, low resources.",
+      idolIntensity:
+        "60–90 hours/week under stress, both technical and legal fires.",
+    },
+    scale: {
+      summary:
+        "Early to mid Uber: launching in multiple cities, dealing with regulators, drivers and explosive growth.",
+      skills: [
+        "Aggressive growth tactics",
+        "Regulatory navigation",
+        "City-by-city expansion",
+      ],
+      environment:
+        "Hyper-growth startup, constant conflict with incumbents and regulators.",
+      idolIntensity:
+        "Extreme, relentless travel and firefighting across markets.",
+    },
+    lead: {
+      summary:
+        "Later Uber years: still driving growth while handling culture issues, PR crises and investor battles.",
+      skills: ["Crisis management", "Executive decision-making"],
+      environment:
+        "Global company under heavy scrutiny and internal cultural pressure.",
+      idolIntensity:
+        "Very high but dominated by negotiation, politics and crisis handling.",
+    },
+  },
+};
+
+// Plan builder: reacts to phase, skill level and hours
+function buildPlan({ phase, skillLevel, weeklyHours, userAge }) {
+  // Age/phase expectations for hours: more grind when young, more leverage later
+  let idealRange;
+  if (phase === "learn") {
+    idealRange = "15–25 hours/week of focused work is ideal at this stage.";
+  } else if (phase === "build") {
+    idealRange =
+      "15–25 hours/week is a strong builder pace. More is possible if life allows.";
+  } else if (phase === "scale") {
+    idealRange =
+      "10–18 hours/week of deep work plus time spent coordinating with others is realistic at this stage.";
+  } else {
+    // lead
+    idealRange =
+      "8–15 hours/week of deep work is enough if you spend the rest of your time leading, delegating and reviewing.";
+  }
+
+  let intensityComment;
+  if (weeklyHours < 5) {
+    intensityComment =
+      "Right now your commitment is hobby level. If you actually want to move like these founders, push towards at least 7–10 hours/week.";
+  } else if (weeklyHours < 15) {
+    intensityComment =
+      "Decent starting intensity. To compound you should aim for the upper end of your phase’s range. " +
+      idealRange;
+  } else {
+    intensityComment =
+      "You’re in a serious intensity range. The constraint now is focus and ruthless project selection, not raw time. " +
+      idealRange;
+  }
+
+  let skillComment;
+  if (skillLevel === "beginner") {
+    if (phase === "learn") {
+      skillComment =
+        "You are in pure foundation mode. Focus on core skills and tiny complete projects. No chasing 10 ideas at once.";
+    } else if (phase === "build") {
+      skillComment =
+        "You are late to the party compared to your idols. You need to compress fundamentals and shipping into the same month. Expect discomfort.";
+    } else {
+      skillComment =
+        "You are behind on technical fundamentals for your age band. You need aggressive focus on core skills while also executing on leveraged work.";
+    }
+  } else if (skillLevel === "intermediate") {
+    if (phase === "learn") {
+      skillComment =
+        "You’re ahead of most people in this phase. Lean hard into shipping more projects instead of more tutorials.";
+    } else if (phase === "build") {
+      skillComment =
+        "You should be shipping real, slightly uncomfortable projects and getting feedback from actual users.";
+    } else {
+      skillComment =
+        "Your job now is to convert intermediate skill into visible output: tools, products, dashboards, systems other people actually use.";
+    }
+  } else {
+    // advanced
+    if (phase === "learn") {
+      skillComment =
+        "If you’re truly advanced at this age, your benchmark is building things other people use, not grinding more courses.";
+    } else if (phase === "build") {
+      skillComment =
+        "Stop consuming content. Build one serious project that could be a portfolio centrepiece or early product.";
+    } else if (phase === "scale") {
+      skillComment =
+        "You should be leading projects and systems, not just executing tickets. Focus on architecture, direction and mentoring others.";
+    } else {
+      skillComment =
+        "Your biggest lever now is decisions, people and capital, not code. Act like it.";
+    }
+  }
+
+  const tasks = [];
+
+  if (phase === "learn") {
+    tasks.push(
+      "Choose one core skill that matches your idol’s path (e.g. backend, data, hardware). Commit to a single structured resource (course/book) and finish it in 30 days.",
+      "Ship 2–3 tiny projects that use this skill and push everything to GitHub. No private work.",
+      "Every week, write a 10–15 minute review: what you learned, what you built, what still feels confusing.",
+      "Join one builder / hacker / founder community and post a short update every week for accountability."
+    );
+  } else if (phase === "build") {
+    tasks.push(
+      "Pick ONE real project that could be used by at least one other person. Define a simple v1 scope you can ship in 30 days.",
+      "Block time each week to design, build and deploy that v1 (frontend/backend or whatever stack you choose).",
+      "Get at least 3 people to try the product and collect written feedback. Do not argue with them.",
+      "At the end of the month, write a one-page retro: what you shipped, what users said, what you’ll change next."
+    );
+  } else if (phase === "scale") {
+    tasks.push(
+      "Identify the most valuable thing you already built or can build quickly that others rely on. Make it more robust, documented and easier to use.",
+      "Automate or document one process you repeat regularly (scripts, checklists, SOPs). Start acting like someone who runs systems, not tasks.",
+      "Collaborate with at least one other person this month: pair on a feature, review their work, or co-own a small project.",
+      "Write a weekly status update as if you were reporting to a small team or investor: progress, risks, next steps."
+    );
+  } else {
+    // lead
+    tasks.push(
+      "Define one clear initiative for the next 30 days where you act as a mini-leader (project, tool, content, small team effort).",
+      "Delegate or outsource at least one low-leverage task per week so you can focus on design, decisions and reviews.",
+      "Schedule one deep-work block each week to think and write about direction: where you want to be in 12–24 months and what needs to change now.",
+      "Do a brutally honest weekly review: what you actually did, what you delegated, what you avoided and why."
+    );
+  }
+
+  return {
+    headline: "Your 30-Day Acceleration Plan",
+    meta: {
+      intensityComment,
+      skillComment,
+    },
+    tasks,
+  };
+}
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers, body: "" };
+  }
+
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
+  }
+
+  const body = JSON.parse(event.body || "{}");
+  let userAge = Number(body.age);
+  const idolKey = body.idolKey || "elon_musk";
+  const skillLevel = body.skillLevel || "beginner";
+  const weeklyHours = Number(body.hoursPerWeek) || 0;
+
+  if (!userAge || userAge < 18) userAge = 18;
+  if (userAge > 40) userAge = 40;
+
+  const phase = getPhaseForAge(userAge);
+  const idolTimeline = idolData[idolKey] || {};
+  let idolSnapshot = idolTimeline[phase];
+
+  if (!idolSnapshot) {
+    idolSnapshot = {
+      summary: "No timeline data for this idol in this phase yet.",
+      skills: [],
+      environment: "",
+      idolIntensity: "",
+    };
+  }
+
+  const plan = buildPlan({ phase, skillLevel, weeklyHours, userAge });
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify({
+      userAge,
+      idol: idolKey,
+      phase,
+      phaseLabel: phaseLabels[phase],
+      idolSnapshot,
+      plan,
+    }),
+  };
+};
