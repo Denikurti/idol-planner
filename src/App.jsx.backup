@@ -2,44 +2,28 @@ import React, { useMemo, useState } from "react";
 
 /*
   IDOL PLANNER — Landing + Deep profiles
-  Enabled: Zuck, Elon, Bill, Jobs, Jeff, Larry, Ek
+  Enabled: Mark Zuckerberg + Elon Musk + Bill Gates + Steve Jobs
 
-  REQUIRED IMAGES (under /public/images/):
+  REQUIRED IMAGES (put these under /public/images/ exactly):
+    /public/images/zuck/zuck-15.png
+    /public/images/zuck/zuck-20.png
+    /public/images/zuck/zuck-25.png
+    /public/images/zuck/zuck-35.png
 
-    /images/zuck/zuck-15.png
-    /images/zuck/zuck-20.png
-    /images/zuck/zuck-25.png
-    /images/zuck/zuck-35.png
+    /public/images/elon/elon-15.png
+    /public/images/elon/elon-25.png
+    /public/images/elon/elon-30.png
+    /public/images/elon/elon-40.png
 
-    /images/elon/elon-15.png
-    /images/elon/elon-25.png
-    /images/elon/elon-30.png
-    /images/elon/elon-40.png
+    /public/images/bill/bill-15.png
+    /public/images/bill/bill-25.png
+    /public/images/bill/bill-35.png
+    /public/images/bill/bill-45.png
 
-    /images/bill/bill-15.png
-    /images/bill/bill-25.png
-    /images/bill/bill-35.png
-    /images/bill/bill-45.png
-
-    /images/jobs/jobs-15.png
-    /images/jobs/jobs-25.png
-    /images/jobs/jobs-35.png
-    /images/jobs/jobs-45.png
-
-    /images/jeff/jeff-15.png
-    /images/jeff/jeff-25.png
-    /images/jeff/jeff-35.png
-    /images/jeff/jeff-45.png
-
-    /images/larry/larry-15.png
-    /images/larry/larry-25.png
-    /images/larry/larry-35.png
-    /images/larry/larry-45.png
-
-    /images/ek/ek-15.png
-    /images/ek/ek-25.png
-    /images/ek/ek-35.png
-    /images/ek/ek-45.png
+    /public/images/jobs/jobs-15.png
+    /public/images/jobs/jobs-25.png
+    /public/images/jobs/jobs-35.png
+    /public/images/jobs/jobs-45.png
 */
 
 /* ==========================
@@ -50,15 +34,17 @@ const FOUNDERS = [
   { id: "elon", name: "Elon Musk", company: "Zip2 → PayPal → Tesla → SpaceX", tag: "First principles", active: true },
   { id: "bill", name: "Bill Gates", company: "Microsoft", tag: "Software mastery", active: true },
   { id: "jobs", name: "Steve Jobs", company: "Apple", tag: "Taste + storytelling", active: true },
-  { id: "jeff", name: "Jeff Bezos", company: "Amazon", tag: "Customer obsession", active: true },
-  { id: "larry", name: "Larry Page", company: "Google", tag: "Algorithms + data", active: true },
-  { id: "ek", name: "Daniel Ek", company: "Spotify", tag: "Distribution", active: true },
+
+  // keep extra idols as “coming soon”
+  { id: "bezos", name: "Jeff Bezos", company: "Amazon", tag: "Customer obsession", active: false },
+  { id: "page", name: "Larry Page", company: "Google", tag: "Algorithms + data", active: false },
+  { id: "ek", name: "Daniel Ek", company: "Spotify", tag: "Distribution", active: false },
 ];
 
 /* ==========================
-   PROFILES (DEEP TIMELINES)
+   ZUCK TIMELINE (DEEP)
+   (kept compatible with your old image paths)
 ========================== */
-
 const ZUCK = {
   id: "zuck",
   name: "Mark Zuckerberg",
@@ -70,14 +56,14 @@ const ZUCK = {
       img: "/images/zuck/zuck-15.png",
       title: "Early builder mindset",
       summary:
-        "This is the compounding phase: high output, high learning speed, building taste for what works because you ship real things.",
+        "This is the compounding phase: high output, high learning speed, building taste for what “works” because you ship real things.",
       doing: [
         "Building small projects for fun (not for validation).",
         "Learning by doing — code, break it, fix it, repeat.",
         "Stacking skills: programming + curiosity + speed.",
       ],
       pattern:
-        "Don’t wait to be ‘ready’. Build while you’re confused. Confusion is the gym.",
+        "The lesson: don’t wait to be ‘ready’. Build while you’re confused. Confusion is the gym.",
     },
     {
       age: 20,
@@ -85,7 +71,7 @@ const ZUCK = {
       img: "/images/zuck/zuck-20.png",
       title: "Shipping the first real product",
       summary:
-        "Facebook starts as a tight loop: ship → feedback → ship again. Fast iteration beats perfect planning.",
+        "Facebook starts as a tight loop: ship → get feedback → ship again. Fast iteration beats perfect planning.",
       doing: [
         "Launching a simple product with clear value.",
         "Watching usage and improving what people actually use.",
@@ -117,16 +103,20 @@ const ZUCK = {
       summary:
         "Once you own distribution, you place decade bets: infrastructure, AI, AR/VR, new platforms.",
       doing: [
-        "Operating huge systems: ads, infra, trust & safety.",
+        "Operating huge systems: data centers, ads, trust & safety.",
         "Competing via platforms (ecosystems > features).",
         "Making multi-year strategy moves under scrutiny.",
       ],
       pattern:
-        "Early you sprint; later you build engines that sprint for you.",
+        "The lesson: early you sprint; later you build engines that sprint for you.",
     },
   ],
 };
 
+/* ==========================
+   ELON TIMELINE (DEEP)
+   (kept compatible with your old image paths)
+========================== */
 const ELON = {
   id: "elon",
   name: "Elon Musk",
@@ -138,14 +128,14 @@ const ELON = {
       img: "/images/elon/elon-15.png",
       title: "Obsessive learner phase",
       summary:
-        "Edge = obsession + learning speed. He consumed fundamentals and built early. No fluff, no branding.",
+        "Elon’s edge wasn’t confidence. It was obsession + learning speed. He consumed physics, engineering thinking, and built early.",
       doing: [
-        "Learning deeply (fundamentals, not vibes).",
+        "Learning deeply (not ‘courses’, but fundamentals).",
         "Building small software projects and experimenting.",
         "Developing first-principles thinking early.",
       ],
       pattern:
-        "Build your mental engine first. Image can wait.",
+        "The lesson: your early years are for building a mental engine, not a public image.",
     },
     {
       age: 25,
@@ -153,14 +143,14 @@ const ELON = {
       img: "/images/elon/elon-25.png",
       title: "First real company execution",
       summary:
-        "Zip2 was the grind: real product, real customers, real sales. Execution beats ideas.",
+        "Zip2 was the grind: building real product for real customers. Execution beats ideas.",
       doing: [
         "Working long hours, iterating fast, selling hard.",
         "Learning business reality: customers, money, delivery.",
         "Turning technical skill into market value.",
       ],
       pattern:
-        "If nobody pays, it’s not a business — it’s a hobby.",
+        "The lesson: build something people will pay for. That’s the only scoreboard.",
     },
     {
       age: 30,
@@ -168,33 +158,36 @@ const ELON = {
       img: "/images/elon/elon-30.png",
       title: "Scaling ambition",
       summary:
-        "Moves from ‘startup’ to missions. Higher risk, higher upside — but only if execution is ruthless.",
+        "He moves from ‘startup’ to ‘missions’. The risk rises — so does the payoff.",
       doing: [
         "Thinking in systems: energy, transport, space.",
         "Taking bigger bets with larger downside.",
         "Recruiting elite teams around hard problems.",
       ],
       pattern:
-        "Ambition is cheap. Ambition + constraints + shipping is rare.",
+        "The lesson: ambition alone is cheap. Ambition + execution is rare.",
     },
     {
       age: 40,
       year: "2011",
       img: "/images/elon/elon-40.png",
-      title: "Relentless operator",
+      title: "Relentless first-principles operator",
       summary:
-        "Compresses timelines by killing bureaucracy. Forces clarity: what matters and what doesn’t.",
+        "He pushes teams into impossible constraints: cost down, speed up, ship faster.",
       doing: [
         "Driving iteration loops inside hardware (hard mode).",
-        "Reducing cost, increasing speed, removing blockers.",
-        "Forcing decisions instead of endless debate.",
+        "Compressing timelines by removing bureaucracy.",
+        "Forcing clarity: what matters, what doesn’t.",
       ],
       pattern:
-        "Constraints create innovation — if you don’t quit.",
+        "The lesson: constraints create innovation — if you don’t quit.",
     },
   ],
 };
 
+/* ==========================
+   BILL TIMELINE (DEEP)
+========================== */
 const BILL = {
   id: "bill",
   name: "Bill Gates",
@@ -206,14 +199,14 @@ const BILL = {
       img: "/images/bill/bill-15.png",
       title: "The code addict phase",
       summary:
-        "Pure obsession. He’s not ‘learning to code’ — he’s living inside systems, breaking them, rebuilding them.",
+        "Pure obsession. He’s not ‘learning to code’ — he’s living inside systems, breaking them, and rebuilding them.",
       doing: [
         "Programming constantly whenever he could get computer access.",
         "Learning systems + constraints (how software really runs).",
         "Building extreme fluency: reading, writing, testing relentlessly.",
       ],
       pattern:
-        "Early goal isn’t ‘startup’. It’s skill density. Pick a weapon and go deep.",
+        "At 15 the goal isn’t ‘a startup’. The goal is skill density. Gates picked software and went all-in.",
     },
     {
       age: 25,
@@ -223,12 +216,12 @@ const BILL = {
       summary:
         "He plays the meta-game: don’t build one app — control the layer everyone depends on.",
       doing: [
-        "Scaling Microsoft around core software.",
+        "Scaling Microsoft aggressively around core software.",
         "Positioning for platform control (operating systems).",
-        "Execution: ship, sell, improve, repeat.",
+        "Execution focus: ship, sell, improve, repeat.",
       ],
       pattern:
-        "Own the platform layer = own the battlefield.",
+        "Distribution + platform beats brilliance. Owning the layer below everything else is leverage.",
     },
     {
       age: 35,
@@ -236,14 +229,14 @@ const BILL = {
       img: "/images/bill/bill-35.png",
       title: "Ecosystem domination",
       summary:
-        "Microsoft becomes default. Tooling + bundling + ecosystem makes the advantage compound.",
+        "Microsoft becomes default. He invests in tooling, bundling, and a developer ecosystem that compounds.",
       doing: [
         "Windows expansion into mass adoption.",
         "Ecosystem lock-in: APIs, tools, partners, defaults.",
-        "Competitive strategy becomes disciplined.",
+        "Competitive strategy becomes systematic and disciplined.",
       ],
       pattern:
-        "Make your product the easiest path for everyone else.",
+        "Once you have a platform, you protect it by making it the easiest path for everyone else.",
     },
     {
       age: 45,
@@ -251,18 +244,21 @@ const BILL = {
       img: "/images/bill/bill-45.png",
       title: "From builder to allocator",
       summary:
-        "Shift to decades-first thinking: org design, priorities, second-order effects at scale.",
+        "Shift from coding-first to decades-first: org design, priorities, and second-order thinking at scale.",
       doing: [
-        "Leading huge orgs: priorities, structure, allocation.",
+        "Leading huge orgs: priorities, structure, resource allocation.",
         "Thinking in global systems, not single products.",
-        "Choosing what matters more than doing everything.",
+        "Moving from doing work → directing work → choosing what matters.",
       ],
       pattern:
-        "Arc: skill → platform → systems. Climb that ladder.",
+        "Arc: early = skill. middle = platform. later = systems. That’s the compounding ladder.",
     },
   ],
 };
 
+/* ==========================
+   JOBS TIMELINE (DEEP)
+========================== */
 const JOBS = {
   id: "jobs",
   name: "Steve Jobs",
@@ -274,271 +270,72 @@ const JOBS = {
       img: "/images/jobs/jobs-15.png",
       title: "Taste formation + misfit energy",
       summary:
-        "Not polished. But building taste — what feels right, what’s elegant, what humans love.",
+        "Not polished. Not ‘successful’. But building taste — what feels right, what’s elegant, what’s human.",
       doing: [
-        "Absorbing how tech is built (hanging around builders).",
-        "Forming taste: simplicity, design, premium feel.",
-        "Developing intensity and contrarian standards.",
+        "Hanging around engineers and absorbing how things work.",
+        "Forming taste: design, simplicity, what feels premium.",
+        "Developing intensity and contrarian thinking (outsider advantage).",
       ],
       pattern:
-        "Taste becomes your unfair advantage — but only if you keep standards brutal.",
+        "Early: you’re not ‘a CEO’. You’re building taste and standards. Taste becomes your unfair advantage later.",
     },
     {
       age: 25,
       year: "1980",
       img: "/images/jobs/jobs-25.png",
-      title: "Product dictatorship",
+      title: "Founder with product dictatorship",
       summary:
-        "Not the best engineer. The best product pusher. He forces clarity and kills mediocrity.",
+        "Jobs wasn’t the best engineer. He was the product dictator. He forced clarity, simplicity, and a story people could feel.",
       doing: [
-        "Driving what ships and what dies.",
-        "Using story to make tech emotionally compelling.",
-        "Recruiting talent and setting insane quality bars.",
+        "Driving product decisions aggressively (what ships, what dies).",
+        "Using design + narrative to make tech feel inevitable.",
+        "Recruiting talent and setting standards brutally high.",
       ],
       pattern:
-        "Committees ship garbage. Dictate taste and simplify.",
+        "Your edge can be taste + focus. Great products aren’t built by committees.",
     },
     {
       age: 35,
       year: "1990",
       img: "/images/jobs/jobs-35.png",
-      title: "Exile and rebuild",
+      title: "Exile and rebuild (NeXT + Pixar)",
       summary:
-        "Fired from Apple. Didn’t quit. Built NeXT and Pixar. Failure became leverage.",
+        "He got fired from Apple — and didn’t collapse. He rebuilt. This phase sharpened patience, leadership, and taste.",
       doing: [
-        "Building NeXT (high standards, real engineering).",
+        "Building NeXT (high standards, serious engineering).",
         "Backing Pixar and learning storytelling at scale.",
-        "Turning ego-hit into long-term resilience.",
+        "Turning failure into leverage and identity into resilience.",
       ],
       pattern:
-        "If you survive humiliation, you become dangerous.",
+        "If you can survive exile, you become dangerous. Most people quit when ego gets hit.",
     },
     {
       age: 45,
       year: "2000",
       img: "/images/jobs/jobs-45.png",
-      title: "The comeback architect",
+      title: "The comeback architect (focus by killing)",
       summary:
-        "Ruthless subtraction. Focus. Integrated systems. Iconic experiences.",
+        "The comeback wasn’t magic — it was ruthless subtraction! focus. He killed product lines, simplified everything, and built iconic experiences.",
       doing: [
-        "Cutting distractions to regain speed.",
-        "Designing integrated hardware + software + UX.",
-        "Raising consumer-tech taste standards.",
+        "Cutting 70% of distractions to regain speed.",
+        "Designing integrated systems (hardware + software + UX).",
+        "Setting a new standard for consumer tech taste.",
       ],
       pattern:
-        "Mastery is subtraction. Focus = what you delete.",
+        "Mastery is subtraction. Focus isn’t what you do — it’s what you delete.",
     },
   ],
 };
 
-const JEFF = {
-  id: "jeff",
-  name: "Jeff Bezos",
-  subtitle: "Amazon",
-  ages: [
-    {
-      age: 15,
-      year: "1979",
-      img: "/images/jeff/jeff-15.png",
-      title: "Builder brain forming",
-      summary:
-        "Early years: curiosity + competence. The foundation is learning how to think clearly and build things that work.",
-      doing: [
-        "Tinkering mindset: how things work, how to improve them.",
-        "Building competence through projects, not opinions.",
-        "Learning discipline and long-term thinking early.",
-      ],
-      pattern:
-        "Your teen years are for becoming dangerously capable, not popular.",
-    },
-    {
-      age: 25,
-      year: "1989",
-      img: "/images/jeff/jeff-25.png",
-      title: "High-performer operator",
-      summary:
-        "Before Amazon: building execution skill, analytical rigor, and systems thinking. This becomes the launchpad.",
-      doing: [
-        "Working in demanding environments and leveling up fast.",
-        "Learning how decisions scale and how organizations function.",
-        "Practicing crisp thinking: metrics, tradeoffs, clarity.",
-      ],
-      pattern:
-        "Before you found, you learn to operate. Great founders execute, not just imagine.",
-    },
-    {
-      age: 35,
-      year: "1999",
-      img: "/images/jeff/jeff-35.png",
-      title: "Customer obsession + scale",
-      summary:
-        "Amazon’s advantage: obsess over the customer and build infrastructure that compounds for decades.",
-      doing: [
-        "Relentless customer focus: selection, price, convenience.",
-        "Building systems: logistics, ops, tech platforms.",
-        "Thinking long-term while others chase short-term profits.",
-      ],
-      pattern:
-        "Obsession + infrastructure = compounding. Build moats, not moments.",
-    },
-    {
-      age: 45,
-      year: "2009",
-      img: "/images/jeff/jeff-45.png",
-      title: "Flywheels + platforms",
-      summary:
-        "He runs Amazon as flywheels: customer value drives growth, scale drives cost down, which improves value again.",
-      doing: [
-        "Designing flywheels, not one-off wins.",
-        "Turning internal systems into platforms (AWS mindset).",
-        "Setting principles that outlive any single product.",
-      ],
-      pattern:
-        "If your business doesn’t compound while you sleep, it’s fragile.",
-    },
-  ],
+const PROFILES = {
+  zuck: ZUCK,
+  elon: ELON,
+  bill: BILL,
+  jobs: JOBS,
 };
-
-const LARRY = {
-  id: "larry",
-  name: "Larry Page",
-  subtitle: "Google",
-  ages: [
-    {
-      age: 15,
-      year: "1988",
-      img: "/images/larry/larry-15.png",
-      title: "Engineer mind + curiosity",
-      summary:
-        "Early edge: deep curiosity and comfort with technical complexity. He leans into hard problems.",
-      doing: [
-        "Growing technical intuition (systems, computers, math).",
-        "Training a first-principles mindset.",
-        "Building confidence through competence, not talk.",
-      ],
-      pattern:
-        "If you want to win in tech, become fluent in complexity instead of avoiding it.",
-    },
-    {
-      age: 25,
-      year: "1998",
-      img: "/images/larry/larry-25.png",
-      title: "Algorithms as leverage",
-      summary:
-        "Google wins by being objectively better: relevance. Algorithmic advantage compounds at scale.",
-      doing: [
-        "Building ranking systems (what matters most).",
-        "Focusing on the core metric: better results.",
-        "Scaling through data + infrastructure.",
-      ],
-      pattern:
-        "In network-effect markets, ‘a bit better’ becomes ‘dominant’ fast.",
-    },
-    {
-      age: 35,
-      year: "2008",
-      img: "/images/larry/larry-35.png",
-      title: "Moonshots mindset",
-      summary:
-        "10x improvements, not 10%. That’s how you justify risk and attract elite talent.",
-      doing: [
-        "Pushing big bets and ambitious engineering projects.",
-        "Building a culture that tolerates experiments.",
-        "Using scale to fund innovation.",
-      ],
-      pattern:
-        "10x thinking changes what’s worth attempting. It also filters who can play with you.",
-    },
-    {
-      age: 45,
-      year: "2018",
-      img: "/images/larry/larry-45.png",
-      title: "Structure for scale",
-      summary:
-        "At massive scale, structure matters: you organize to let multiple bets run without killing the core.",
-      doing: [
-        "Building org structures that protect innovation.",
-        "Balancing platform stability with experimental bets.",
-        "Delegating without losing direction.",
-      ],
-      pattern:
-        "Past a point, your job is architecture: org, incentives, decision flow.",
-    },
-  ],
-};
-
-const EK = {
-  id: "ek",
-  name: "Daniel Ek",
-  subtitle: "Spotify",
-  ages: [
-    {
-      age: 15,
-      year: "1998",
-      img: "/images/ek/ek-15.png",
-      title: "Internet-native builder",
-      summary:
-        "Early advantage: building for the internet era and learning distribution mechanics, not just coding.",
-      doing: [
-        "Experimenting early (internet-native instincts).",
-        "Learning what spreads and why people share.",
-        "Developing product taste through iteration.",
-      ],
-      pattern:
-        "If you can’t distribute, you don’t really have a product.",
-    },
-    {
-      age: 25,
-      year: "2008",
-      img: "/images/ek/ek-25.png",
-      title: "Turn piracy into a product",
-      summary:
-        "Spotify’s core insight: don’t fight user behavior — redirect it into a better legal experience.",
-      doing: [
-        "Designing a product that beats piracy on convenience.",
-        "Negotiating messy constraints (labels, licensing).",
-        "Building a smooth experience people love.",
-      ],
-      pattern:
-        "Win by removing friction. People choose the easiest path.",
-    },
-    {
-      age: 35,
-      year: "2018",
-      img: "/images/ek/ek-35.png",
-      title: "Distribution at global scale",
-      summary:
-        "At scale, Spotify is a distribution machine: partnerships, platforms, and retention loops matter more than features.",
-      doing: [
-        "Scaling infra for global streaming.",
-        "Leveraging partnerships (devices, telcos, platforms).",
-        "Using data for personalization and retention.",
-      ],
-      pattern:
-        "Growth becomes systems engineering: loops, partnerships, retention.",
-    },
-    {
-      age: 45,
-      year: "2028",
-      img: "/images/ek/ek-45.png",
-      title: "Ecosystem expansion",
-      summary:
-        "Music becomes a wedge. Expand into broader audio: creators, monetization, platform power.",
-      doing: [
-        "Expanding beyond one category (audio ecosystem).",
-        "Building creator tools and monetization.",
-        "Using platform leverage to shape markets.",
-      ],
-      pattern:
-        "Wedge → scale → ecosystem. That’s how you build a durable platform.",
-    },
-  ],
-};
-
-const PROFILES = { zuck: ZUCK, elon: ELON, bill: BILL, jobs: JOBS, jeff: JEFF, larry: LARRY, ek: EK };
 
 /* ==========================
-   UI HELPERS
+   SMALL UI HELPERS
 ========================== */
 function Pill({ children }) {
   return (
@@ -548,7 +345,7 @@ function Pill({ children }) {
         padding: "6px 10px",
         borderRadius: 999,
         fontSize: 12,
-        fontWeight: 800,
+        fontWeight: 700,
         background: "rgba(80,120,255,0.16)",
         border: "1px solid rgba(120,160,255,0.25)",
       }}
@@ -570,7 +367,7 @@ function Button({ children, onClick, disabled }) {
         border: "1px solid rgba(255,255,255,0.15)",
         background: disabled ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.10)",
         color: "white",
-        fontWeight: 900,
+        fontWeight: 800,
       }}
     >
       {children}
@@ -585,6 +382,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null);
 
   const enabledFounders = useMemo(() => FOUNDERS.filter((f) => f.active), []);
+
   const selectedProfile = selectedId ? PROFILES[selectedId] : null;
 
   return (
@@ -601,18 +399,19 @@ export default function App() {
           "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'",
       }}
     >
+      {/* HEADER */}
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ letterSpacing: 3, opacity: 0.8, fontSize: 12, fontWeight: 900 }}>
+        <div style={{ letterSpacing: 3, opacity: 0.8, fontSize: 12, fontWeight: 800 }}>
           IDOL PLANNER
         </div>
-
         <h1 style={{ fontSize: 56, lineHeight: 1.05, margin: "10px 0 8px" }}>
           Idols at a Young Age
         </h1>
-        <p style={{ opacity: 0.9, fontSize: 16, maxWidth: 780 }}>
+        <p style={{ opacity: 0.9, fontSize: 16, maxWidth: 720 }}>
           Pick a founder. Learn what they were doing at key ages — then steal the pattern.
         </p>
 
+        {/* NAV / BACK */}
         <div style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "center" }}>
           {selectedProfile ? (
             <>
@@ -643,11 +442,6 @@ export default function App() {
           >
             {FOUNDERS.map((f) => {
               const isEnabled = f.active;
-              const avatar =
-                (PROFILES[f.id]?.ages?.[1]?.img) ||
-                (PROFILES[f.id]?.ages?.[0]?.img) ||
-                "/images/zuck/zuck-25.png";
-
               return (
                 <div
                   key={f.id}
@@ -662,21 +456,16 @@ export default function App() {
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                     <div>
-                      <div style={{ fontSize: 20, fontWeight: 950 }}>{f.name}</div>
+                      <div style={{ fontSize: 20, fontWeight: 900 }}>{f.name}</div>
                       <div style={{ opacity: 0.78, fontSize: 13 }}>{f.company}</div>
                     </div>
-
-                    {/* CARD AVATAR (REAL PHOTO) */}
-                    <img
-                      src={avatar}
-                      alt={`${f.name} avatar`}
+                    <div
                       style={{
-                        width: 48,
-                        height: 48,
+                        width: 46,
+                        height: 46,
                         borderRadius: 14,
-                        objectFit: "cover",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        boxShadow: "0 10px 25px rgba(0,0,0,0.35)",
+                        background: "linear-gradient(135deg, rgba(80,120,255,0.35), rgba(255,255,255,0.08))",
+                        border: "1px solid rgba(255,255,255,0.12)",
                       }}
                     />
                   </div>
@@ -746,23 +535,23 @@ export default function App() {
                       }}
                     />
                     <div>
-                      <div style={{ fontSize: 18, fontWeight: 950 }}>
-                        Age {a.age} <span style={{ opacity: 0.7, fontWeight: 800 }}>· {a.year}</span>
+                      <div style={{ fontSize: 18, fontWeight: 900 }}>
+                        Age {a.age} <span style={{ opacity: 0.7, fontWeight: 700 }}>· {a.year}</span>
                       </div>
-                      <div style={{ opacity: 0.9, fontWeight: 900 }}>{a.title}</div>
+                      <div style={{ opacity: 0.9, fontWeight: 800 }}>{a.title}</div>
                     </div>
                   </div>
 
                   <p style={{ marginTop: 12, opacity: 0.9, lineHeight: 1.45 }}>{a.summary}</p>
 
-                  <div style={{ marginTop: 10, fontWeight: 950, opacity: 0.9 }}>What they were doing:</div>
+                  <div style={{ marginTop: 10, fontWeight: 900, opacity: 0.9 }}>What they were doing:</div>
                   <ul style={{ marginTop: 8, paddingLeft: 18, opacity: 0.9, lineHeight: 1.5 }}>
                     {a.doing.map((d, i) => (
                       <li key={i}>{d}</li>
                     ))}
                   </ul>
 
-                  <div style={{ marginTop: 10, fontWeight: 950, opacity: 0.9 }}>Pattern to steal:</div>
+                  <div style={{ marginTop: 10, fontWeight: 900, opacity: 0.9 }}>Pattern to steal:</div>
                   <div style={{ marginTop: 6, opacity: 0.9, lineHeight: 1.45 }}>{a.pattern}</div>
                 </div>
               ))}
@@ -770,7 +559,7 @@ export default function App() {
           </div>
         )}
 
-        {/* FOOTER */}
+        {/* FOOTER NOTE */}
         {!selectedProfile && (
           <div
             style={{

@@ -1,1076 +1,961 @@
-import React, { useMemo, useState, useEffect } from "react";
-
-/**
- * Idol Planner — Blue + White premium UI
- * Single-file App.jsx (no extra CSS files required).
- * Replace your existing App.jsx with this file.
- */
-
-const FOUNDERS = [
-  {
-    id: "zuck",
-    name: "Mark Zuckerberg",
-    company: "Facebook (Meta)",
-    category: "Social",
-    oneLiner: "Built and shipped relentlessly; won via speed + network effects.",
-    short: "Coding and building projects nonstop as a teenager; shipped early social products.",
-    story:
-      "Zuckerberg’s edge was shipping early products fast, learning from real users, and compounding distribution through network effects. The “moat” wasn’t clever code— it was adoption and iteration velocity.",
-    principles: [
-      "Ship fast and learn from users",
-      "Distribution is a feature",
-      "Focus on retention loops",
-      "Keep product simple, improve weekly",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Code daily", "Ship tiny apps weekly", "Learn fundamentals deeply", "Build for real users (even 10)"];
-      if (age <= 22) return ["Build an MVP people return to", "Create growth loops", "Iterate weekly with user feedback", "Learn systems + scalability basics"];
-      if (age <= 26) return ["Scale product + infra", "Hire/partner for leverage", "Protect focus, avoid distraction", "Obsess over distribution & retention"];
-      return ["Operate at scale", "Build moats", "Place strategic bets", "Keep execution cadence strong"];
-    },
-  },
-  {
-    id: "musk",
-    name: "Elon Musk",
-    company: "Tesla, SpaceX",
-    category: "Hard Tech",
-    oneLiner: "First principles + mission obsession + brutal execution.",
-    short: "Obsessed with physics, sci-fi, and computers from a young age; went deep on first principles.",
-    story:
-      "Musk leans on first-principles reasoning: break problems down to physics/economics, then rebuild a solution. Combine that with risk tolerance and high-intensity iteration and you get hard-tech compounding.",
-    principles: [
-      "First principles over analogy",
-      "Choose hard, valuable problems",
-      "Prototype fast with constraints",
-      "Relentless iteration under pressure",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Math + physics basics", "Build small prototypes", "Learn coding + systems", "Practice first principles thinking"];
-      if (age <= 22) return ["Pick a hard domain", "Build proof-of-concepts", "Learn business models", "Work with real constraints (time/money)"];
-      if (age <= 26) return ["Recruit top talent", "Scale prototypes into product", "Raise capital or generate revenue", "Build execution discipline"];
-      return ["Scale org", "Optimize manufacturing/ops", "Long-term bets with compounding advantage", "Keep speed without chaos"];
-    },
-  },
-  {
-    id: "ek",
-    name: "Daniel Ek",
-    company: "Spotify",
-    category: "Product",
-    oneLiner: "Practical building + product taste + distribution partnerships.",
-    short: "Freelance coder early; learned real-world product delivery and UX.",
-    story:
-      "Ek sharpened skills by building for clients and then applied product taste + distribution strategy to a massive market: music consumption. The lesson: make something users love, then win distribution.",
-    principles: [
-      "Build practical skills via real work",
-      "Optimize UX + speed",
-      "Retention beats hype",
-      "Partnerships accelerate distribution",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Client work to sharpen skills", "Learn UX basics", "Ship features consistently", "Study distribution channels"];
-      if (age <= 22) return ["Build a product people return to", "Make it fast + delightful", "Measure retention", "Ship weekly improvements"];
-      if (age <= 26) return ["Scale with data", "Partnership strategy", "International expansion thinking", "Build a brand + habit"];
-      return ["Platform strategy", "Expand ecosystem", "New product lines", "Defend and compound distribution"];
-    },
-  },
-  {
-    id: "jobs",
-    name: "Steve Jobs",
-    company: "Apple",
-    category: "Design",
-    oneLiner: "Taste + storytelling + product simplicity.",
-    short: "Focused on product vision, simplicity, and packaging technology into desire.",
-    story:
-      "Jobs’ advantage wasn’t just tech. It was taste and the ability to turn complex engineering into simple, emotional products. He aligned design, distribution, and narrative.",
-    principles: [
-      "Simplicity is a feature",
-      "Taste matters",
-      "Story + brand amplify product",
-      "Make the whole experience coherent",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Build taste: study great products", "Learn basic engineering", "Practice storytelling", "Make simple things feel premium"];
-      if (age <= 22) return ["Build a product with strong taste", "Obsess over UX", "Polish the core workflow", "Learn persuasion + narrative"];
-      if (age <= 26) return ["Pair with strong engineers", "Ship iconic v1", "Build brand trust", "Ruthlessly cut fluff"];
-      return ["Scale product line", "Maintain taste as team grows", "Launch cycles", "Defend brand + ecosystem"];
-    },
-  },
-  {
-    id: "gates",
-    name: "Bill Gates",
-    company: "Microsoft",
-    category: "Software",
-    oneLiner: "Deep technical skill + ruthless focus + distribution leverage.",
-    short: "Hardcore programmer; bet early on software becoming the control layer of computing.",
-    story:
-      "Gates went deep on coding early, then positioned Microsoft where leverage was highest: the software layer controlling hardware ecosystems. Key lesson: technical mastery + platform leverage.",
-    principles: [
-      "Technical mastery compounds",
-      "Choose leverage points (platforms)",
-      "Focus beats breadth",
-      "Ship reliable software",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Code daily", "Learn systems + OS basics", "Build small tools", "Study how platforms win"];
-      if (age <= 22) return ["Pick a platform opportunity", "Build developer-friendly tools", "Learn distribution deals", "Write clean, reliable software"];
-      if (age <= 26) return ["Scale with partners", "Build ecosystem", "Own the platform layer", "Execution and reliability"];
-      return ["Defend platform", "Expand product suite", "Strategic acquisitions", "Sustain technical excellence"];
-    },
-  },
-  {
-    id: "page",
-    name: "Larry Page",
-    company: "Google",
-    category: "Search",
-    oneLiner: "Algorithms + data + compounding distribution.",
-    short: "Focused on ranking information better; won via superior algorithmic advantage.",
-    story:
-      "Page leaned into the simplest powerful idea: rank pages by links (signals). Then compound data, infrastructure, and distribution. Lesson: build a product that improves with usage.",
-    principles: [
-      "Algorithmic advantage matters",
-      "Data flywheels",
-      "Infrastructure = moats",
-      "Make the product improve with usage",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Learn algorithms + math basics", "Build data projects", "Practice research thinking", "Ship prototypes"];
-      if (age <= 22) return ["Pick a problem with a data flywheel", "Build a measurable MVP", "Optimize quality signals", "Learn scale basics"];
-      if (age <= 26) return ["Infra + reliability", "Distribution partnerships", "Hire strong engineers", "Protect signal quality"];
-      return ["Scale responsibly", "Expand ecosystem", "Long-term research bets", "Defend platform integrity"];
-    },
-  },
-  {
-    id: "bezos",
-    name: "Jeff Bezos",
-    company: "Amazon",
-    category: "E-commerce",
-    oneLiner: "Customer obsession + long-term compounding.",
-    short: "Relentless customer focus; optimized for long-term advantage, not short-term comfort.",
-    story:
-      "Bezos built a machine: customer obsession, selection, convenience, and compounding logistics. Lesson: long-term thinking + operational excellence is a superpower.",
-    principles: [
-      "Customer obsession",
-      "Long-term thinking",
-      "Operational excellence",
-      "Compounding systems",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Learn fundamentals", "Work hard jobs to build grit", "Study systems", "Build discipline"];
-      if (age <= 22) return ["Build a product customers love", "Measure what matters", "Create reliable execution", "Think in years, not days"];
-      if (age <= 26) return ["Build operations", "Automate processes", "Scale with systems", "Add selection/features steadily"];
-      return ["Compound distribution + ops", "Invest in moats", "Keep customer trust", "Expand platform"];
-    },
-  },
-  {
-    id: "altman",
-    name: "Sam Altman",
-    company: "OpenAI / YC",
-    category: "Startups",
-    oneLiner: "Fast iteration + networking + capital strategy.",
-    short: "Built early; learned startup mechanics and how to scale teams/products.",
-    story:
-      "Altman’s playbook is: build, learn fast, recruit, and execute. Combine product sense with distribution and capital strategy. Strong networks amplify outcomes.",
-    principles: [
-      "Fast iteration",
-      "Recruit strong people",
-      "Distribution + capital strategy",
-      "Long-term compounding bets",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Build things", "Learn to sell ideas", "Make friends with builders", "Ship constantly"];
-      if (age <= 22) return ["Build a real MVP", "Talk to users weekly", "Learn growth + distribution", "Recruit collaborators"];
-      if (age <= 26) return ["Scale product + team", "Fundraising strategy", "Execution cadence", "Build a wedge + moat"];
-      return ["Platform thinking", "Strategic partnerships", "Second-order effects", "Keep shipping at scale"];
-    },
-  },
-  {
-    id: "systrom",
-    name: "Kevin Systrom",
-    company: "Instagram",
-    category: "Social",
-    oneLiner: "Simple product + strong UX + viral distribution.",
-    short: "Focused on making a simple, addictive product with a clear sharing loop.",
-    story:
-      "Instagram won by being simple, fast, and shareable. Lesson: strip complexity, obsess over UX, and engineer distribution into the product.",
-    principles: [
-      "Simplicity wins",
-      "UX is distribution",
-      "Sharing loops matter",
-      "Speed + iteration",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Build small apps", "Learn design basics", "Ship weekly", "Study viral loops"];
-      if (age <= 22) return ["Build a simple MVP", "Obsess over UI", "Ship fast", "Engineer sharing/retention loops"];
-      if (age <= 26) return ["Scale infra", "Improve retention", "Expand features carefully", "Keep product simple"];
-      return ["Defend attention", "New growth channels", "Platform strategy", "Protect quality and brand"];
-    },
-  },
-  {
-    id: "collison",
-    name: "Patrick Collison",
-    company: "Stripe",
-    category: "Payments",
-    oneLiner: "Developer-first product + infrastructure moat.",
-    short: "Focused on building infrastructure that developers love—clean APIs and reliability.",
-    story:
-      "Stripe won by obsessing over developer experience: simple APIs, clear docs, and reliability. Lesson: boring infrastructure becomes huge if it’s the best tool.",
-    principles: [
-      "Developer experience is a moat",
-      "Reliability over flash",
-      "Build infrastructure",
-      "Ship with excellent docs",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Build developer tools", "Learn APIs deeply", "Write docs for your own projects", "Ship small utilities"];
-      if (age <= 22) return ["Build an API product", "Care about reliability", "Work on docs + onboarding", "Solve a painful workflow"];
-      if (age <= 26) return ["Scale infrastructure", "Enterprise thinking", "Security + compliance basics", "Partner distribution"];
-      return ["Platform expansion", "New products", "Defend trust + reliability", "Ecosystem strategy"];
-    },
-  },
-  {
-    id: "nadella",
-    name: "Satya Nadella",
-    company: "Microsoft (CEO)",
-    category: "Leadership",
-    oneLiner: "Growth mindset + systems leadership + compounding teams.",
-    short: "Built deep technical foundation then scaled impact through leadership and culture.",
-    story:
-      "Nadella is a culture + systems leader: align teams, create learning loops, and modernize platforms. Lesson: leadership multiplies technical work.",
-    principles: [
-      "Growth mindset",
-      "Team leverage",
-      "Systems thinking",
-      "Customer + developer focus",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Build fundamentals", "Practice communication", "Lead small groups/projects", "Develop consistency"];
-      if (age <= 22) return ["Build projects with others", "Improve communication", "Learn architecture basics", "Build reliable delivery habits"];
-      if (age <= 26) return ["Lead initiatives", "Scale systems", "Mentor others", "Create strong execution culture"];
-      return ["Org design", "Strategy + execution alignment", "Platform modernization", "Compounding teams"];
-    },
-  },
-  {
-    id: "huang",
-    name: "Jensen Huang",
-    company: "NVIDIA",
-    category: "Hardware",
-    oneLiner: "High standards + long-term technical bets + execution.",
-    short: "Bet early on compute acceleration; long-term vision combined with intense execution.",
-    story:
-      "Huang’s lesson: pick a long-term technical wave, then execute with high standards for years. Compounding wins if you keep shipping and improving.",
-    principles: [
-      "High standards",
-      "Long-term technical bets",
-      "Execution discipline",
-      "Build platforms, not features",
-    ],
-    focusByAge: (age) => {
-      if (age <= 18) return ["Math + CS fundamentals", "Build small systems", "Learn how computers work", "Stay consistent daily"];
-      if (age <= 22) return ["Pick a deep tech area", "Build projects that teach systems", "Learn performance basics", "Develop quality standards"];
-      if (age <= 26) return ["Scale expertise", "Ship polished work", "Work with strong teams", "Build platform thinking"];
-      return ["Platform strategy", "Sustained execution", "Ecosystem partnerships", "Long-run compounding bets"];
-    },
-  },
-];
-
-const CATEGORIES = ["All", ...Array.from(new Set(FOUNDERS.map((f) => f.category)))];
-
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
-}
-
-function cx(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
+import React, { useMemo, useState } from "react";
 
 export default function App() {
-  const [age, setAge] = useState(22);
-  const [selectedId, setSelectedId] = useState(FOUNDERS[0].id);
-  const [query, setQuery] = useState("");
-  const [cat, setCat] = useState("All");
-  const [modalOpen, setModalOpen] = useState(false);
+  // Images expected in: /public/images/<id>/<id>-<age>.png
+  // Example: public/images/travis/travis-25.png -> src "/images/travis/travis-25.png"
 
-  const selected = useMemo(
-    () => FOUNDERS.find((f) => f.id === selectedId) || FOUNDERS[0],
-    [selectedId]
+  const founders = useMemo(
+    () => [
+      // -------------------- ZUCK --------------------
+      {
+        id: "zuck",
+        name: "Mark Zuckerberg",
+        company: "Facebook (Meta)",
+        tagline: "Product + speed",
+        coverImage: "/images/zuck/zuck-22.png",
+        blurb:
+          "Built fast, shipped constantly, obsessed over distribution + retention.",
+        ages: [
+          {
+            age: 15,
+            image: "/images/zuck/zuck-15.png",
+            title: "Early builder mode",
+            text: `At 15, Zuckerberg was already doing the only thing that matters: building and iterating. This is the phase where you build instinct — you learn by shipping, breaking stuff, and fixing it. Not reading about it. Not “planning.” He was messing with software, learning how people use products, and building the muscle of turning ideas into reality quickly.
+
+The real lesson: when you're young, your advantage is speed + low risk. You can afford to look stupid. You can afford to ship ugly prototypes. Your job is to stack reps: build small systems, learn feedback loops, and get comfortable being wrong fast.`,
+          },
+          {
+            age: 22,
+            image: "/images/zuck/zuck-22.png",
+            title: "Facebook is real",
+            text: `At 22, Facebook wasn’t a fantasy — it was an operating machine. This is when your project stops being “a cool site” and becomes a system: user growth, uptime, abuse, scaling, hiring, and focus. The shift is brutal: you go from building features to building an organization that builds features.
+
+The lesson: distribution beats perfection. If you can grow, retain, and expand, you can win even with an imperfect product. The best founders treat growth + product as one combined job.`,
+          },
+          {
+            age: 25,
+            image: "/images/zuck/zuck-25.png",
+            title: "Scale + defense",
+            text: `By 25, the game becomes competitive warfare. Copycats appear. Press attacks. Platform risk. Your job is to build a moat: network effects, ecosystem, and relentless execution speed.
+
+The lesson: scaling isn’t just servers — it’s culture. Culture is the operating system of the company. If you don't intentionally shape it, it shapes itself into something weak.`,
+          },
+          {
+            age: 30,
+            image: "/images/zuck/zuck-30.png",
+            title: "Platform + acquisitions",
+            text: `Around 30, Zuckerberg’s focus was platform dominance: mobile shift, Instagram/WhatsApp era, keeping attention, buying threats, and building long-term control.
+
+The lesson: big wins come from correctly calling platform transitions (desktop → mobile → AI). If you’re late, you die. If you’re early, you look crazy until you’re right.`,
+          },
+          {
+            age: 40,
+            image: "/images/zuck/zuck-40.png",
+            title: "Reinvention attempts",
+            text: `At 40, the challenge is reinvention under pressure. Regulation, public perception, and new paradigms. The mission becomes: can the company evolve without losing its core advantages?
+
+The lesson: even giants can decay. Your job is to keep the company hungry, focused, and aligned on a clear strategy, not vanity projects.`,
+          },
+        ],
+      },
+
+      // -------------------- ELON --------------------
+      {
+        id: "elon",
+        name: "Elon Musk",
+        company: "Zip2 → PayPal → Tesla → SpaceX",
+        tagline: "First principles",
+        coverImage: "/images/elon/elon-25.png",
+        blurb: "Physics mindset, extreme work ethic, bets on hard problems.",
+        ages: [
+          {
+            age: 15,
+            image: "/images/elon/elon-15.png",
+            title: "Obsessive learning + coding",
+            text: `At 15, Elon was stacking hardcore fundamentals: reading constantly, learning physics thinking, and coding. This phase is about building an unfair advantage in how you think — not just what you know.
+
+Lesson: first-principles thinking is a skill. You learn it by repeatedly asking: what is true here? What are the constraints? What assumptions am I blindly copying?`,
+          },
+          {
+            age: 25,
+            image: "/images/elon/elon-25.png",
+            title: "Zip2 grind",
+            text: `In his mid-20s, Elon was deep in grind mode: building software, selling to businesses, pushing distribution, and living the founder life (sleeping near the office, extreme output).
+
+Lesson: early-stage startups are not “balanced.” They are output wars. The founder’s job is to create momentum from nothing.`,
+          },
+          {
+            age: 30,
+            image: "/images/elon/elon-30.png",
+            title: "PayPal era + capital",
+            text: `Around 30, PayPal created leverage: capital, credibility, network. This is when you turn early success into the ability to attempt bigger problems.
+
+Lesson: cash is not the goal — optionality is. Money buys time, talent, and bigger shots.`,
+          },
+          {
+            age: 40,
+            image: "/images/elon/elon-40.png",
+            title: "Hard-tech scaling",
+            text: `By 40, the game became building real-world machines at scale: rockets, factories, supply chains. That’s where most founders fail — because reality has no mercy.
+
+Lesson: hard-tech requires systems engineering thinking: parts, processes, constraints, manufacturing, and iteration loops.`,
+          },
+        ],
+      },
+
+      // -------------------- GATES --------------------
+      {
+        id: "gates",
+        name: "Bill Gates",
+        company: "Microsoft",
+        tagline: "Software mastery",
+        coverImage: "/images/gates/gates-22.png",
+        blurb: "Deep focus, technical edge, ruthless clarity on what matters.",
+        ages: [
+          {
+            age: 15,
+            image: "/images/gates/gates-15.png",
+            title: "Programming obsession",
+            text: `At 15, Gates was already deep in code. This is not talent — it’s obsession + reps. He didn’t “learn programming.” He lived it.
+
+Lesson: if you want elite skill, you need intensity. Your competition is people who do this all day without motivation needed.`,
+          },
+          {
+            age: 22,
+            image: "/images/gates/gates-22.png",
+            title: "Microsoft momentum",
+            text: `At 22, Gates was focused on the core leverage point: software standards and distribution to manufacturers. He wasn’t building random apps — he was positioning Microsoft at the center.
+
+Lesson: the biggest wins often come from owning the interface / platform, not being “a nice product.”`,
+          },
+          {
+            age: 30,
+            image: "/images/gates/gates-30.png",
+            title: "Platform dominance",
+            text: `Around 30, it’s about protecting dominance: partnerships, developer ecosystem, and relentless shipping.
+
+Lesson: once you win, you must defend. Complacency is death.`,
+          },
+        ],
+      },
+
+      // -------------------- JOBS --------------------
+      {
+        id: "jobs",
+        name: "Steve Jobs",
+        company: "Apple",
+        tagline: "Taste + storytelling",
+        coverImage: "/images/jobs/jobs-22.png",
+        blurb: "Taste, focus, and turning tech into a cultural product.",
+        ages: [
+          {
+            age: 15,
+            image: "/images/jobs/jobs-15.png",
+            title: "Curiosity + craft",
+            text: `At 15, Jobs was soaking up craft, electronics curiosity, and learning from builders around him.
+
+Lesson: taste is built. You develop it by studying great work and being extremely picky about what “good” is.`,
+          },
+          {
+            age: 22,
+            image: "/images/jobs/jobs-22.png",
+            title: "Early Apple era",
+            text: `At 22, Jobs was in the mix of the early Apple story: merging technical work with product vision and selling the dream.
+
+Lesson: great founders sell the future in a way people can feel — then they execute until it becomes real.`,
+          },
+          {
+            age: 30,
+            image: "/images/jobs/jobs-30.png",
+            title: "Hard lessons",
+            text: `Around 30, Jobs learned that leadership, politics, and execution maturity matter. Vision alone doesn’t run companies.
+
+Lesson: if you can’t manage people and conflict, your company will outgrow you.`,
+          },
+        ],
+      },
+
+      // -------------------- BEZOS --------------------
+      {
+        id: "bezos",
+        name: "Jeff Bezos",
+        company: "Amazon",
+        tagline: "Customer obsession",
+        coverImage: "/images/bezos/bezos-30.png",
+        blurb: "Long-term compounding, customer focus, ruthless logistics.",
+        ages: [
+          {
+            age: 22,
+            image: "/images/bezos/bezos-22.png",
+            title: "Building competence",
+            text: `At 22, Bezos was stacking competence: learning systems, learning business, learning the mechanics of execution.
+
+Lesson: early years are about building the base. Competence compounds.`,
+          },
+          {
+            age: 30,
+            image: "/images/bezos/bezos-30.png",
+            title: "Amazon is scaling",
+            text: `Around 30, Amazon is becoming a machine: logistics, pricing, customer experience.
+
+Lesson: “customer obsession” is not a quote — it’s operational discipline.`,
+          },
+          {
+            age: 40,
+            image: "/images/bezos/bezos-40.png",
+            title: "Platform thinking",
+            text: `At 40, the game is platform expansion: cloud, marketplace, infrastructure.
+
+Lesson: build the tools others depend on. That’s power.`,
+          },
+        ],
+      },
+
+      // -------------------- LARRY PAGE --------------------
+      {
+        id: "larry",
+        name: "Larry Page",
+        company: "Google",
+        tagline: "Algorithms + data",
+        coverImage: "/images/larry/larry-25.png",
+        blurb:
+          "Information leverage, technical differentiation, scale by design.",
+        ages: [
+          {
+            age: 22,
+            image: "/images/larry/larry-22.png",
+            title: "Research mindset",
+            text: `At 22, Page is in deep technical problem territory: finding better ways to organize information.
+
+Lesson: big companies often start as one strong technical insight executed hard.`,
+          },
+          {
+            age: 25,
+            image: "/images/larry/larry-25.png",
+            title: "Google growth",
+            text: `By 25, Google is becoming real: product traction + infrastructure scaling.
+
+Lesson: when you have product-market fit, you must scale without breaking quality.`,
+          },
+          {
+            age: 35,
+            image: "/images/larry/larry-35.png",
+            title: "Moonshots mindset",
+            text: `At 35, Page pushes moonshots and long-term bets.
+
+Lesson: after you win, allocate some resources to asymmetric upside projects.`,
+          },
+        ],
+      },
+
+      // -------------------- DANIEL EK --------------------
+      {
+        id: "ek",
+        name: "Daniel Ek",
+        company: "Spotify",
+        tagline: "Distribution",
+        coverImage: "/images/ek/ek-30.png",
+        blurb:
+          "Licensing + product + growth — fighting in a tough industry.",
+        ages: [
+          {
+            age: 22,
+            image: "/images/ek/ek-22.png",
+            title: "Early hustle",
+            text: `At 22, Ek is in the high-output hustle phase: building skills, building credibility, learning the market.
+
+Lesson: people underestimate how much “early hustle” decides the next decade.`,
+          },
+          {
+            age: 30,
+            image: "/images/ek/ek-30.png",
+            title: "Spotify scaling",
+            text: `Around 30, Spotify is fighting major forces: licensing, labels, platform shifts.
+
+Lesson: in regulated or complex industries, you need negotiation + product excellence.`,
+          },
+        ],
+      },
+
+      // -------------------- NEW: TRAVIS KALANICK --------------------
+      {
+        id: "travis",
+        name: "Travis Kalanick",
+        company: "Uber",
+        tagline: "Relentless execution",
+        coverImage: "/images/travis/travis-25.png",
+        blurb:
+          "Aggressive operator mindset: move fast, break inertia, win the city-by-city war.",
+        ages: [
+          {
+            age: 15,
+            image: "/images/travis/travis-15.png",
+            title: "Young builder instincts",
+            text: `At 15, the value isn't “what company you run” — it’s whether you're becoming dangerous: learning how systems work, building technical confidence, and developing the habit of shipping things instead of consuming content.
+
+For Travis-style founders, this is where traits form: intensity, competitiveness, comfort with uncertainty. You learn how to argue for your idea, persuade friends to join, test something small, and keep going after embarrassment.
+
+Lesson: you don’t need a perfect plan — you need reps. Your job is to build the identity: “I ship.”`,
+          },
+          {
+            age: 25,
+            image: "/images/travis/travis-25.png",
+            title: "Operator mode: turning chaos into momentum",
+            text: `At 25, the main skill is not “having ideas.” It’s operating. This is the age where a future operator-founder learns the real game: execution beats intelligence if you can outwork and out-iterate.
+
+The Uber-style lesson: markets aren’t won by nice features. They’re won by distribution, incentives, and relentless local execution. You win city-by-city. You build playbooks. You recruit supply. You fix onboarding. You improve conversion. You get to repeatable growth.
+
+Lesson: momentum is the currency of startups. If you can create it and keep it, you can beat better-funded competitors.`,
+          },
+          {
+            age: 35,
+            image: "/images/travis/travis-35.png",
+            title: "Scaling a machine + dealing with backlash",
+            text: `At 35, hypergrowth creates enemies — regulators, competitors, press. The company becomes political. You can’t just “build,” you must manage second-order effects.
+
+This stage forces a truth: leadership maturity matters. Culture matters. Governance matters. If you don’t manage risk, risk manages you.
+
+Lesson: you can win the market and still lose the company if you ignore culture, ethics, and leadership discipline.`,
+          },
+          {
+            age: 45,
+            image: "/images/travis/travis-45.png",
+            title: "Rebuilding + pattern recognition",
+            text: `At 45, the most valuable asset isn’t the brand name — it’s pattern recognition. You’ve seen the traps: ego, sloppy culture, uncontrolled risk, PR disasters, leadership bottlenecks.
+
+Lesson: evolve. Keep the aggression for execution, but build real systems for trust, culture, and long-term stability.`,
+          },
+        ],
+      },
+
+      // -------------------- NEW: RICHARD BRANSON --------------------
+      {
+        id: "richard",
+        name: "Richard Branson",
+        company: "Virgin",
+        tagline: "Brand + deals",
+        coverImage: "/images/richard/richard-25.png",
+        blurb:
+          "Charismatic entrepreneur: brand storytelling, partnerships, bold bets, and learning by doing.",
+        ages: [
+          {
+            age: 15,
+            image: "/images/richard/richard-15.png",
+            title: "Confidence + selling energy",
+            text: `At 15, Branson-style founders build a different superpower: selling. Not in a scam way — in a human way. You learn how to get attention, pitch, and make people believe in the story.
+
+You also realize you don’t need permission. You can start small businesses, make deals, and learn by being in the arena.
+
+Lesson: confidence compounds. If you get comfortable reaching out, pitching, and negotiating early, you become unstoppable later.`,
+          },
+          {
+            age: 25,
+            image: "/images/richard/richard-25.png",
+            title: "Brand building + leverage via partnerships",
+            text: `At 25, Branson’s edge isn’t deep engineering — it’s brand + deal-making. He understands attention, storytelling, and how to partner to create leverage.
+
+There are multiple founder archetypes. Some win via engineering. Some via distribution. Branson wins via brand and bold moves.
+
+Lesson: you don’t have to be the most technical person to build big things — but you must be elite at something. For Branson: marketing, risk-taking, and recruiting strong operators.`,
+          },
+          {
+            age: 35,
+            image: "/images/richard/richard-35.png",
+            title: "Bigger bets, bigger risk management",
+            text: `At 35, the company becomes a portfolio. You place bets across industries using brand as the bridge — but you must manage risk and keep the core strong.
+
+Lesson: expansion is dangerous. Don’t expand because it’s exciting — expand because you have a repeatable advantage you can transfer.`,
+          },
+          {
+            age: 45,
+            image: "/images/richard/richard-45.png",
+            title: "Legacy + long-term positioning",
+            text: `At 45, the challenge is staying relevant while scaling reputation and long-term value. You’re managing brand, leadership succession, and public narrative.
+
+Lesson: at scale, trust is an asset. Reputation can open doors that money can’t. Protect it.`,
+          },
+        ],
+      },
+    ],
+    []
   );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return FOUNDERS.filter((f) => {
-      const catOk = cat === "All" ? true : f.category === cat;
-      const qOk = !q
-        ? true
-        : (f.name + " " + f.company + " " + f.category + " " + f.oneLiner + " " + f.short)
-            .toLowerCase()
-            .includes(q);
-      return catOk && qOk;
-    });
-  }, [query, cat]);
+  // -------------------- STATE --------------------
+  const [selectedFounderId, setSelectedFounderId] = useState(null);
+  const [selectedAge, setSelectedAge] = useState(null);
 
-  const focus = useMemo(() => selected.focusByAge(age), [selected, age]);
+  const selectedFounder =
+    founders.find((f) => f.id === selectedFounderId) || null;
 
-  // Inject global CSS (body margin, background, etc.)
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.setAttribute("data-idol-planner", "true");
-    style.innerHTML = GLOBAL_CSS;
-    document.head.appendChild(style);
-    return () => {
-      document.querySelectorAll('style[data-idol-planner="true"]').forEach((n) => n.remove());
-    };
-  }, []);
+  const openFounder = (id) => {
+    const f = founders.find((x) => x.id === id);
+    setSelectedFounderId(id);
+    setSelectedAge(f?.ages?.[0]?.age ?? null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
+  const goHome = () => {
+    setSelectedFounderId(null);
+    setSelectedAge(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const selectedAgeObj =
+    selectedFounder?.ages?.find((a) => a.age === selectedAge) ||
+    selectedFounder?.ages?.[0] ||
+    null;
+
+  // -------------------- UI --------------------
   return (
-    <div className="appShell">
-      {/* Top Nav */}
-      <header className="topNav">
-        <div className="topNavInner">
-          <div className="brandRow">
-            <div className="brandMark" />
-            <div className="brandText">
-              <div className="brandName">Idol Planner</div>
-              <div className="brandTag">Blue/White theme • Founders playbook • Execution system</div>
+    <div className="app">
+      <style>{css}</style>
+
+      <header className="topbar">
+        <div className="topbar-inner">
+          <div className="brand" onClick={goHome} role="button" tabIndex={0}>
+            <div className="brand-kicker">IDOL PLANNER</div>
+            <div className="brand-title">Idols at a Young Age</div>
+            <div className="brand-sub">
+              Pick a founder. Learn what they were doing at key ages — then
+              steal the pattern.
             </div>
           </div>
 
-          <div className="topRight">
-            <div className="pill">React + Vite</div>
-            <div className="pill ghost">Local Dev</div>
-          </div>
+          {selectedFounder ? (
+            <button className="btn btn-ghost" onClick={goHome}>
+              ← Back to founders
+            </button>
+          ) : (
+            <div className="pill">
+              <span className="pill-dot" />
+              Enabled now: {founders.map((f) => f.name).join(", ")}
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="hero">
-        <div className="heroInner">
-          <div className="heroCenter">
-            <div className="heroKicker">Your age → their focus → your next move</div>
-            <h1 className="heroTitle">What were top entrepreneurs doing at your age?</h1>
-            <p className="heroSub">
-              This is an <b>execution dashboard</b>. Pick a founder, set your age, and extract a
-              repeatable plan. Less scrolling. More shipping.
-            </p>
-
-            <div className="heroControls">
-              <div className="ageBox">
-                <div className="ageLabel">Your age</div>
-                <div className="ageValue">{age}</div>
-                <div className="ageSuffix">years</div>
-              </div>
-
-              <div className="sliderBox">
-                <div className="sliderTopRow">
-                  <span>14</span>
-                  <span>45</span>
-                </div>
-                <input
-                  className="slider"
-                  type="range"
-                  min="14"
-                  max="45"
-                  value={age}
-                  onChange={(e) => setAge(clamp(Number(e.target.value), 14, 45))}
-                />
-                <div className="sliderHint">Slide the age. The focus list updates instantly.</div>
-              </div>
-            </div>
-
-            <div className="heroFilters">
-              <div className="searchWrap">
-                <span className="searchIcon">⌕</span>
-                <input
-                  className="searchInput"
-                  placeholder="Search founders (name, company, category)…"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                />
-              </div>
-
-              <div className="selectWrap">
-                <span className="selectLabel">Category</span>
-                <select className="select" value={cat} onChange={(e) => setCat(e.target.value)}>
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                className="btnPrimary"
-                onClick={() => {
-                  setQuery("");
-                  setCat("All");
-                }}
-              >
-                Reset
-              </button>
-            </div>
-
-            <div className="heroExamples">
-              <div className="exampleCard">
-                <div className="exampleTitle">Examples you can build</div>
-                <div className="exampleGrid">
-                  <div className="ex">
-                    <div className="exHead">📈 Data + Security</div>
-                    <div className="exBody">Phishing trends dashboard, breach insights, anomaly login detector</div>
-                  </div>
-                  <div className="ex">
-                    <div className="exHead">⚙️ Dev Tool</div>
-                    <div className="exBody">Log parser, API tester, CLI automation, report generator</div>
-                  </div>
-                  <div className="ex">
-                    <div className="exHead">🧠 Learning Project</div>
-                    <div className="exBody">Algorithms visualizer, mini database, mini interpreter/shell</div>
-                  </div>
-                  <div className="ex">
-                    <div className="exHead">🚀 MVP Product</div>
-                    <div className="exBody">Simple habit tool, scheduling helper, portfolio dashboard</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="exampleCard alt">
-                <div className="exampleTitle">Rule of the game</div>
-                <div className="exampleText">
-                  Pick <b>one</b> idea. Ship a v1 in <b>7 days</b>. Iterate weekly. Your real advantage is
-                  compounding output, not perfect planning.
-                </div>
-                <div className="exampleBtns">
-                  <button className="btnSecondary" onClick={() => alert("Sprint locked: 7 days. Ship v1. Iterate weekly.")}>
-                    Lock a 7-day sprint
-                  </button>
-                  <button
-                    className="btnSecondary"
-                    onClick={() => alert("Upgrade path: add timeline view + more founder data + save profiles.")}
-                  >
-                    Upgrade roadmap
-                  </button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Main */}
       <main className="main">
-        <div className="sectionTitleWrap">
-          <h2 className="sectionTitle">Founder Library</h2>
-          <p className="sectionSub">
-            Click a founder to select. Hit “View full story” for deeper notes and principles.
-          </p>
-        </div>
-
-        <div className="grid">
-          {filtered.map((f) => {
-            const isActive = f.id === selectedId;
-            return (
+        {!selectedFounder && (
+          <>
+            <div className="actions">
               <button
-                key={f.id}
-                className={cx("founderCard", isActive && "active")}
-                onClick={() => setSelectedId(f.id)}
+                className="btn btn-primary"
+                onClick={() => openFounder(founders[0].id)}
               >
-                <div className="founderTop">
-                  <div className="founderCat">{f.category}</div>
-                </div>
+                Choose a founder
+              </button>
+              <div className="hint">
+                Tip: If an image doesn’t show, it’s almost always the file path
+                or filename mismatch.
+              </div>
+            </div>
 
-                <div className="founderBody">
-                  <div className="founderName">{f.name}</div>
-                  <div className="founderCompany">{f.company}</div>
-                  <div className="founderOneLiner">{f.oneLiner}</div>
-                  <div className="founderShort">{f.short}</div>
+            <div className="grid">
+              {founders.map((f) => (
+                <div className="card" key={f.id}>
+                  <div className="card-row">
+                    <div className="card-left">
+                      <div className="card-name">{f.name}</div>
+                      <div className="card-company">{f.company}</div>
+                    </div>
 
-                  <div className="cardActions">
-                    <span className="selectState">{isActive ? "Selected" : "Select"}</span>
-                    <span className="arrow">→</span>
+                    <div className="avatar">
+                      <img
+                        src={f.coverImage}
+                        alt={`${f.name} cover`}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="card-row card-row-bottom">
+                    <div className="tag">{f.tagline}</div>
+                    <button
+                      className="btn btn-small"
+                      onClick={() => openFounder(f.id)}
+                    >
+                      Open →
+                    </button>
                   </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+              ))}
+            </div>
 
-        {/* Plan */}
-        <section className="plan">
-          <div className="planHeader">
-            <div className="planLeft">
-              <div className="planHeadline">
-                At <span className="accent">{age}</span>, what would{" "}
-                <span className="accent">{selected.name}</span> focus on?
+            <div className="footer-note">
+              Your job: don’t just read these. Extract patterns, then copy the
+              pattern into your week.
+            </div>
+          </>
+        )}
+
+        {selectedFounder && (
+          <div className="founder-page">
+            <div className="founder-hero">
+              <div className="founder-hero-left">
+                <div className="founder-name">{selectedFounder.name}</div>
+                <div className="founder-meta">
+                  <span className="meta-chip">{selectedFounder.company}</span>
+                  <span className="meta-chip meta-chip-strong">
+                    {selectedFounder.tagline}
+                  </span>
+                </div>
+                <div className="founder-blurb">{selectedFounder.blurb}</div>
               </div>
-              <div className="planDesc">{selected.story}</div>
+
+              <div className="founder-hero-right">
+                <div className="hero-image">
+                  <img
+                    src={selectedFounder.coverImage}
+                    alt={`${selectedFounder.name} cover`}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="planRight">
-              <button className="btnPrimary" onClick={() => setModalOpen(true)}>
-                View full story
-              </button>
-            </div>
-          </div>
-
-          <div className="planGrid">
-            <div className="planCard">
-              <div className="planCardTitle">Focus List</div>
-              <ul className="list">
-                {focus.map((item) => (
-                  <li key={item} className="li">
-                    <span className="check">✓</span>
-                    <span>{item}</span>
-                  </li>
+            <div className="timeline">
+              <div className="timeline-title">Pick an age</div>
+              <div className="age-row">
+                {selectedFounder.ages.map((a) => (
+                  <button
+                    key={a.age}
+                    className={`age-btn ${
+                      a.age === selectedAge ? "age-btn-active" : ""
+                    }`}
+                    onClick={() => setSelectedAge(a.age)}
+                  >
+                    {a.age}
+                  </button>
                 ))}
-              </ul>
-            </div>
-
-            <div className="planCard">
-              <div className="planCardTitle">Your next move (tight)</div>
-              <div className="planText">
-                Choose <b>one project</b> from the examples. Ship a working v1 within <b>7 days</b>.
-                Then iterate weekly. If you want, we’ll add a timeline view + more founders + saved profiles.
-              </div>
-
-              <div className="planButtons">
-                <button className="btnSecondary" onClick={() => alert("Action: Pick 1 project now. v1 in 7 days.")}>
-                  Pick 1 project
-                </button>
-                <button className="btnSecondary" onClick={() => alert("Next: add timeline view, charts, saved profiles, Netlify function plans.")}>
-                  Add upgrades
-                </button>
               </div>
             </div>
-          </div>
-        </section>
 
-        <footer className="footer">
-          <div className="footerLine" />
-          <div className="footerText">
-            Idol Planner • Blue/White UI • Built to ship • Keep compounding.
+            {selectedAgeObj && (
+              <div className="detail">
+                <div className="detail-left">
+                  <div className="detail-image">
+                    <img
+                      src={selectedAgeObj.image}
+                      alt={`${selectedFounder.name} at ${selectedAgeObj.age}`}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div className="detail-right">
+                  <div className="detail-age">Age {selectedAgeObj.age}</div>
+                  <div className="detail-title">{selectedAgeObj.title}</div>
+                  <div className="detail-text">{selectedAgeObj.text}</div>
+
+                  <div className="detail-actions">
+                    <button className="btn btn-ghost" onClick={goHome}>
+                      ← Back to founders
+                    </button>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => {
+                        const idx = selectedFounder.ages.findIndex(
+                          (x) => x.age === selectedAgeObj.age
+                        );
+                        const next = selectedFounder.ages[idx + 1];
+                        if (next) setSelectedAge(next.age);
+                      }}
+                    >
+                      Next age →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mini-note">
+              Pattern extraction: write 3 bullets — (1) skill built, (2) leverage
+              used, (3) risk taken. Then plan your week.
+            </div>
           </div>
-        </footer>
+        )}
       </main>
-
-      {/* Modal */}
-      {modalOpen && (
-        <div className="modalOverlay" onMouseDown={() => setModalOpen(false)}>
-          <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
-            <div className="modalTop">
-              <div>
-                <div className="modalTitle">{selected.name}</div>
-                <div className="modalSub">{selected.company} • {selected.category}</div>
-              </div>
-              <button className="modalClose" onClick={() => setModalOpen(false)}>✕</button>
-            </div>
-
-            <div className="modalBody">
-              <div className="modalSectionTitle">Story</div>
-              <div className="modalText">{selected.story}</div>
-
-              <div className="modalSectionTitle" style={{ marginTop: 14 }}>Core Principles</div>
-              <div className="pillRow">
-                {selected.principles.map((p) => (
-                  <span key={p} className="pillLite">{p}</span>
-                ))}
-              </div>
-
-              <div className="modalSectionTitle" style={{ marginTop: 14 }}>At age {age}, focus list</div>
-              <ul className="list">
-                {selected.focusByAge(age).map((item) => (
-                  <li key={item} className="li">
-                    <span className="check">✓</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="modalHint">
-                Want more founders? Add more objects to the <b>FOUNDERS</b> array at the top of this file.
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-const GLOBAL_CSS = `
-:root{
-  --blue-950:#07162F;
-  --blue-900:#0A2144;
-  --blue-800:#0B2E5E;
-  --blue-700:#0F3B78;
-  --blue-600:#1A4EA1;
-  --blue-500:#2563EB;
-  --sky-200:#CFE6FF;
-  --sky-100:#EAF4FF;
-  --white:#FFFFFF;
-  --text:#0B1B2F;
-  --muted:#49627D;
-  --card:#FFFFFF;
-  --border:rgba(37,99,235,0.18);
-  --shadow: 0 20px 55px rgba(7,22,47,0.18);
-  --shadow2: 0 12px 28px rgba(7,22,47,0.12);
-  --radius: 18px;
-}
+const css = `
+  :root{
+    --bg1:#070A12;
+    --bg2:#0B1230;
+    --stroke:rgba(255,255,255,.10);
+    --text:rgba(255,255,255,.92);
+    --muted:rgba(255,255,255,.65);
+    --muted2:rgba(255,255,255,.48);
+    --shadow: 0 24px 70px rgba(0,0,0,.45);
+    --shadow2: 0 14px 38px rgba(0,0,0,.35);
+  }
 
-*{ box-sizing:border-box; }
-html, body { height:100%; }
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  background:
-    radial-gradient(900px 450px at 15% 0%, rgba(37,99,235,0.18), transparent 55%),
-    radial-gradient(850px 520px at 85% 10%, rgba(14,165,233,0.16), transparent 60%),
-    linear-gradient(180deg, var(--sky-100), #F7FBFF 45%, #F5F9FF 100%);
-  color: var(--text);
-}
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
 
-button, input, select { font-family: inherit; }
+  .app{
+    min-height:100vh;
+    color:var(--text);
+    background:
+      radial-gradient(900px 500px at 10% 12%, rgba(70,120,255,.40), transparent 60%),
+      radial-gradient(900px 520px at 80% 28%, rgba(180,100,255,.30), transparent 65%),
+      radial-gradient(1100px 700px at 50% 110%, rgba(40,220,255,.12), transparent 60%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+  }
 
-.appShell{ min-height: 100vh; }
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    backdrop-filter: blur(14px);
+    background: linear-gradient(180deg, rgba(10,14,30,.80), rgba(10,14,30,.55));
+    border-bottom:1px solid var(--stroke);
+  }
+  .topbar-inner{
+    max-width: 1100px;
+    margin:0 auto;
+    padding: 18px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
 
-/* Top Nav */
-.topNav{
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(37,99,235,0.12);
-}
-.topNavInner{
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 14px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 12px;
-}
-.brandRow{ display:flex; align-items:center; gap: 12px; }
-.brandMark{
-  width: 14px; height: 14px; border-radius: 999px;
-  background: linear-gradient(135deg, #2563EB, #38BDF8);
-  box-shadow: 0 0 0 6px rgba(37,99,235,0.10);
-}
-.brandName{ font-weight: 950; letter-spacing: -0.3px; font-size: 16px; }
-.brandTag{ font-size: 12px; color: var(--muted); margin-top: 2px; }
-.topRight{ display:flex; gap: 10px; flex-wrap: wrap; justify-content:flex-end; }
-.pill{
-  font-size: 12px;
-  font-weight: 700;
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(37,99,235,0.18);
-  background: rgba(37,99,235,0.08);
-  color: #0B2E5E;
-}
-.pill.ghost{
-  background: rgba(255,255,255,0.65);
-  border: 1px solid rgba(37,99,235,0.12);
-}
+  .brand{ cursor:pointer; }
+  .brand-kicker{
+    letter-spacing:.25em;
+    font-weight:800;
+    font-size:12px;
+    color:rgba(255,255,255,.75);
+  }
+  .brand-title{
+    font-size:44px;
+    font-weight:900;
+    line-height:1.05;
+    margin-top:6px;
+  }
+  .brand-sub{
+    margin-top:10px;
+    color:var(--muted);
+    max-width:700px;
+    font-size:14px;
+    line-height:1.5;
+  }
 
-/* Hero */
-.hero{
-  padding: 42px 18px 24px;
-}
-.heroInner{
-  max-width: 1180px;
-  margin: 0 auto;
-}
-.heroCenter{
-  text-align: center;
-}
-.heroKicker{
-  display:inline-block;
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: #0B2E5E;
-  background: rgba(37,99,235,0.10);
-  border: 1px solid rgba(37,99,235,0.16);
-  padding: 8px 12px;
-  border-radius: 999px;
-}
-.heroTitle{
-  margin: 14px auto 0;
-  font-size: 46px;
-  line-height: 1.07;
-  letter-spacing: -1.2px;
-  font-weight: 950;
-  max-width: 900px;
-  color: #061A33;
-}
-.heroSub{
-  margin: 12px auto 0;
-  max-width: 860px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #2A445F;
-}
-.heroControls{
-  margin: 22px auto 0;
-  max-width: 860px;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 14px;
-  align-items: stretch;
-}
-.ageBox{
-  background: var(--card);
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow2);
-  padding: 14px;
-  display:flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.ageLabel{ font-size: 12px; color: var(--muted); font-weight: 800; }
-.ageValue{ font-size: 42px; font-weight: 950; letter-spacing: -1px; color: #0B2E5E; margin-top: 4px; }
-.ageSuffix{ font-size: 12px; color: var(--muted); font-weight: 800; margin-top: 2px; }
+  .pill{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border:1px solid var(--stroke);
+    background: rgba(10,14,30,.40);
+    border-radius:999px;
+    color:rgba(255,255,255,.70);
+    font-size:13px;
+    white-space:nowrap;
+    max-width: 480px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .pill-dot{
+    width:9px;height:9px;border-radius:50%;
+    background: rgba(110,255,190,.95);
+    box-shadow: 0 0 0 4px rgba(110,255,190,.15);
+  }
 
-.sliderBox{
-  background: var(--card);
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow2);
-  padding: 14px;
-  display:flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.sliderTopRow{ display:flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 800; }
-.slider{
-  width:100%;
-  margin-top: 10px;
-}
-.sliderHint{
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 700;
-}
-.heroFilters{
-  margin: 14px auto 0;
-  max-width: 860px;
-  display:flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-}
-.searchWrap{
-  display:flex;
-  align-items:center;
-  gap: 8px;
-  background: var(--card);
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: 999px;
-  padding: 10px 12px;
-  box-shadow: var(--shadow2);
-  min-width: 320px;
-}
-.searchIcon{ color: #0B2E5E; font-weight: 900; }
-.searchInput{
-  border: none;
-  outline: none;
-  background: transparent;
-  width: 100%;
-  font-size: 14px;
-  color: #0B1B2F;
-}
-.selectWrap{
-  display:flex;
-  align-items:center;
-  gap: 8px;
-  background: var(--card);
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: 999px;
-  padding: 10px 12px;
-  box-shadow: var(--shadow2);
-}
-.selectLabel{ font-size: 12px; color: var(--muted); font-weight: 900; }
-.select{
-  border: none;
-  outline: none;
-  background: transparent;
-  font-weight: 800;
-  color: #0B2E5E;
-}
-.btnPrimary{
-  border: none;
-  cursor: pointer;
-  font-weight: 950;
-  padding: 11px 14px;
-  border-radius: 999px;
-  color: white;
-  background: linear-gradient(135deg, #2563EB, #38BDF8);
-  box-shadow: 0 14px 32px rgba(37,99,235,0.22);
-}
-.btnPrimary:hover{ filter: brightness(0.98); }
+  .main{
+    max-width:1100px;
+    margin:0 auto;
+    padding: 22px 18px 60px;
+  }
 
-.heroExamples{
-  margin: 18px auto 0;
-  max-width: 1000px;
-  display:grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 14px;
-  text-align: left;
-}
-.exampleCard{
-  background: var(--card);
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 14px;
-}
-.exampleCard.alt{
-  background: linear-gradient(180deg, rgba(37,99,235,0.08), rgba(56,189,248,0.08));
-}
-.exampleTitle{
-  font-weight: 950;
-  letter-spacing: -0.2px;
-  color: #061A33;
-}
-.exampleGrid{
-  margin-top: 10px;
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.ex{
-  border: 1px solid rgba(37,99,235,0.12);
-  border-radius: 14px;
-  padding: 10px;
-  background: rgba(37,99,235,0.04);
-}
-.exHead{ font-weight: 950; color: #0B2E5E; }
-.exBody{ margin-top: 4px; color: #2A445F; font-size: 13px; line-height: 1.35; }
-.exampleText{ margin-top: 10px; color: #2A445F; line-height: 1.45; }
-.exampleBtns{ margin-top: 12px; display:flex; gap: 10px; flex-wrap: wrap; }
-.btnSecondary{
-  cursor:pointer;
-  font-weight: 900;
-  padding: 10px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(37,99,235,0.16);
-  background: rgba(255,255,255,0.75);
-  color: #0B2E5E;
-}
-.btnSecondary:hover{ background: rgba(255,255,255,0.92); }
+  .actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin: 10px 0 18px;
+  }
+  .hint{
+    flex:1;
+    text-align:right;
+    color:var(--muted2);
+    font-size:13px;
+  }
 
-/* Main */
-.main{
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 18px 18px 60px;
-}
-.sectionTitleWrap{ text-align: center; margin-top: 8px; }
-.sectionTitle{
-  margin: 0;
-  font-size: 28px;
-  font-weight: 950;
-  letter-spacing: -0.6px;
-  color: #061A33;
-}
-.sectionSub{
-  margin: 10px auto 0;
-  max-width: 820px;
-  color: #2A445F;
-  line-height: 1.45;
-}
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap:14px;
+  }
 
-.grid{
-  margin-top: 16px;
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-.founderCard{
-  cursor:pointer;
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: var(--radius);
-  background: var(--card);
-  box-shadow: var(--shadow2);
-  padding: 0;
-  overflow:hidden;
-  text-align:left;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-}
-.founderCard:hover{
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-.founderCard.active{
-  border-color: rgba(37,99,235,0.32);
-  box-shadow: 0 26px 70px rgba(37,99,235,0.22);
-}
-.founderTop{
-  height: 56px;
-  background: linear-gradient(135deg, rgba(37,99,235,0.22), rgba(56,189,248,0.18));
-  display:flex;
-  align-items:flex-end;
-  padding: 12px;
-}
-.founderCat{
-  font-size: 12px;
-  font-weight: 950;
-  color: #0B2E5E;
-  background: rgba(255,255,255,0.75);
-  border: 1px solid rgba(37,99,235,0.14);
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-.founderBody{ padding: 14px; }
-.founderName{ font-weight: 950; letter-spacing: -0.2px; color: #061A33; }
-.founderCompany{ margin-top: 3px; font-size: 13px; color: #3C5874; font-weight: 800; }
-.founderOneLiner{ margin-top: 10px; font-weight: 900; color: #0B2E5E; }
-.founderShort{ margin-top: 8px; font-size: 13px; color: #2A445F; line-height: 1.35; }
-.cardActions{
-  margin-top: 12px;
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  color: #0B2E5E;
-}
-.selectState{ font-weight: 950; }
-.arrow{ font-weight: 950; }
+  .card{
+    border:1px solid var(--stroke);
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border-radius:18px;
+    padding:16px;
+    box-shadow: var(--shadow2);
+    position:relative;
+    overflow:hidden;
+  }
+  .card:before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    background:
+      radial-gradient(600px 180px at 10% 0%, rgba(110,160,255,.22), transparent 60%),
+      radial-gradient(600px 200px at 90% 0%, rgba(190,120,255,.18), transparent 60%);
+    pointer-events:none;
+  }
 
-.plan{
-  margin-top: 18px;
-  border: 1px solid rgba(37,99,235,0.14);
-  border-radius: 22px;
-  background: rgba(255,255,255,0.78);
-  box-shadow: var(--shadow);
-  padding: 16px;
-}
-.planHeader{
-  display:flex;
-  justify-content: space-between;
-  align-items:flex-start;
-  gap: 12px;
-}
-.planHeadline{
-  font-size: 20px;
-  font-weight: 950;
-  letter-spacing: -0.3px;
-  color: #061A33;
-}
-.accent{ color: #2563EB; }
-.planDesc{
-  margin-top: 10px;
-  color: #2A445F;
-  line-height: 1.5;
-  max-width: 820px;
-}
-.planGrid{
-  margin-top: 14px;
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.planCard{
-  border: 1px solid rgba(37,99,235,0.12);
-  border-radius: 18px;
-  background: white;
-  padding: 14px;
-}
-.planCardTitle{ font-weight: 950; color: #061A33; }
-.planText{ margin-top: 10px; color: #2A445F; line-height: 1.5; }
-.planButtons{ margin-top: 12px; display:flex; gap: 10px; flex-wrap: wrap; }
+  .card-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    position:relative;
+    z-index:2;
+  }
 
-.list{ list-style: none; padding: 0; margin: 12px 0 0; display:grid; gap: 10px; }
-.li{ display:flex; gap: 10px; align-items:flex-start; color: #18324A; line-height: 1.35; }
-.check{
-  width: 22px; height: 22px;
-  display:flex; align-items:center; justify-content:center;
-  border-radius: 10px;
-  font-weight: 950;
-  background: rgba(37,99,235,0.12);
-  border: 1px solid rgba(37,99,235,0.18);
-  color: #0B2E5E;
-  flex: 0 0 auto;
-}
+  .card-left{ min-width:0; }
+  .card-name{
+    font-size:18px;
+    font-weight:900;
+    line-height:1.1;
+  }
+  .card-company{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:13px;
+  }
 
-.footer{ margin-top: 18px; text-align: center; }
-.footerLine{ height: 1px; background: rgba(37,99,235,0.12); margin: 18px 0 12px; }
-.footerText{ color: #3C5874; font-weight: 800; font-size: 12px; }
+  .avatar{
+    width:46px;height:46px;
+    border-radius:14px;
+    border:1px solid var(--stroke);
+    background: rgba(0,0,0,.2);
+    overflow:hidden;
+    box-shadow: 0 10px 22px rgba(0,0,0,.35);
+    flex:0 0 auto;
+  }
+  .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
 
-/* Modal */
-.modalOverlay{
-  position: fixed;
-  inset: 0;
-  background: rgba(7,22,47,0.45);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 18px;
-  z-index: 100;
-}
-.modal{
-  width: min(900px, 100%);
-  background: white;
-  border-radius: 22px;
-  border: 1px solid rgba(37,99,235,0.18);
-  box-shadow: 0 30px 90px rgba(7,22,47,0.30);
-  overflow:hidden;
-}
-.modalTop{
-  padding: 14px 16px;
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(56,189,248,0.10));
-  border-bottom: 1px solid rgba(37,99,235,0.12);
-}
-.modalTitle{ font-weight: 950; font-size: 18px; color: #061A33; }
-.modalSub{ margin-top: 3px; color: #3C5874; font-weight: 800; font-size: 12px; }
-.modalClose{
-  cursor:pointer;
-  border: 1px solid rgba(37,99,235,0.18);
-  background: rgba(255,255,255,0.75);
-  border-radius: 12px;
-  padding: 8px 10px;
-  font-weight: 950;
-  color: #0B2E5E;
-}
-.modalBody{ padding: 14px 16px 18px; }
-.modalSectionTitle{ font-weight: 950; color: #061A33; }
-.modalText{ margin-top: 8px; color: #2A445F; line-height: 1.55; }
-.pillRow{ display:flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.pillLite{
-  font-size: 12px;
-  font-weight: 900;
-  padding: 8px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(37,99,235,0.16);
-  background: rgba(37,99,235,0.06);
-  color: #0B2E5E;
-}
-.modalHint{
-  margin-top: 14px;
-  font-size: 12px;
-  color: #3C5874;
-  font-weight: 800;
-}
+  .card-row-bottom{ margin-top:14px; }
 
-/* Responsive */
-@media (max-width: 980px){
-  .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .heroExamples{ grid-template-columns: 1fr; }
-  .heroControls{ grid-template-columns: 1fr; }
-}
-@media (max-width: 560px){
-  .grid{ grid-template-columns: 1fr; }
-  .planGrid{ grid-template-columns: 1fr; }
-  .heroTitle{ font-size: 34px; }
-  .searchWrap{ min-width: 0; width: 100%; }
-}
-`;
+  .tag{
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid var(--stroke);
+    background: rgba(10,14,30,.40);
+    color: rgba(255,255,255,.80);
+    font-size:12px;
+    font-weight:700;
+  }
 
+  .btn{
+    border:none;
+    cursor:pointer;
+    font-weight:800;
+    border-radius:999px;
+    padding:10px 14px;
+    transition: transform .12s ease, opacity .12s ease, background .12s ease;
+  }
+  .btn:active{ transform: scale(.98); }
+  .btn-primary{
+    color: rgba(10,14,30,.95);
+    background: linear-gradient(90deg, rgba(120,170,255,.95), rgba(200,140,255,.92));
+    box-shadow: 0 16px 40px rgba(120,170,255,.18);
+  }
+  .btn-ghost{
+    color: rgba(255,255,255,.86);
+    background: rgba(255,255,255,.06);
+    border:1px solid var(--stroke);
+  }
+  .btn-small{
+    color: rgba(255,255,255,.86);
+    background: rgba(255,255,255,.06);
+    border:1px solid var(--stroke);
+    padding:8px 12px;
+  }
+
+  .footer-note{
+    margin-top:18px;
+    border:1px solid var(--stroke);
+    background: rgba(10,14,30,.34);
+    border-radius:16px;
+    padding:14px 14px;
+    color: rgba(255,255,255,.68);
+    font-size:13px;
+  }
+
+  .founder-page{ margin-top: 10px; }
+
+  .founder-hero{
+    display:grid;
+    grid-template-columns: 1.4fr .6fr;
+    gap:16px;
+    border:1px solid var(--stroke);
+    border-radius:18px;
+    background: rgba(10,14,30,.36);
+    padding:16px;
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+
+  .founder-name{
+    font-size:34px;
+    font-weight:950;
+    line-height:1.05;
+  }
+  .founder-meta{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .meta-chip{
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid var(--stroke);
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.78);
+    font-size:12px;
+    font-weight:800;
+  }
+  .meta-chip-strong{
+    background: rgba(120,170,255,.16);
+    border-color: rgba(120,170,255,.28);
+  }
+
+  .founder-blurb{
+    margin-top:12px;
+    color: var(--muted);
+    line-height:1.55;
+    font-size:14px;
+    max-width: 720px;
+  }
+
+  .hero-image{
+    width:100%;
+    height:180px;
+    border-radius:16px;
+    border:1px solid var(--stroke);
+    overflow:hidden;
+    background: rgba(0,0,0,.18);
+    box-shadow: 0 16px 38px rgba(0,0,0,.35);
+  }
+  .hero-image img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .timeline{
+    margin-top:14px;
+    border:1px solid var(--stroke);
+    border-radius:18px;
+    background: rgba(10,14,30,.30);
+    padding:14px;
+  }
+  .timeline-title{
+    font-weight:900;
+    color: rgba(255,255,255,.85);
+    margin-bottom:10px;
+  }
+  .age-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .age-btn{
+    padding:10px 14px;
+    border-radius:999px;
+    border:1px solid var(--stroke);
+    background: rgba(255,255,255,.05);
+    color: rgba(255,255,255,.86);
+    font-weight:900;
+    cursor:pointer;
+  }
+  .age-btn-active{
+    background: linear-gradient(90deg, rgba(110,160,255,.92), rgba(200,140,255,.85));
+    color: rgba(10,14,30,.95);
+    border-color: transparent;
+  }
+
+  .detail{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns: .9fr 1.1fr;
+    gap:16px;
+    border:1px solid var(--stroke);
+    border-radius:18px;
+    background: rgba(10,14,30,.34);
+    padding:16px;
+    box-shadow: var(--shadow);
+  }
+
+  .detail-image{
+    width:100%;
+    height:340px;
+    border-radius:16px;
+    border:1px solid var(--stroke);
+    overflow:hidden;
+    background: rgba(0,0,0,.18);
+  }
+  .detail-image img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .detail-age{
+    font-size:12px;
+    letter-spacing:.22em;
+    font-weight:950;
+    color: rgba(255,255,255,.72);
+  }
+  .detail-title{
+    margin-top:8px;
+    font-size:22px;
+    font-weight:950;
+  }
+  .detail-text{
+    margin-top:10px;
+    color: rgba(255,255,255,.70);
+    line-height:1.7;
+    font-size:14px;
+    white-space: pre-wrap;
+  }
+
+  .detail-actions{
+    margin-top:14px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+
+  .mini-note{
+    margin-top:14px;
+    color: rgba(255,255,255,.65);
+    font-size:13px;
+    border:1px solid var(--stroke);
+    background: rgba(10,14,30,.28);
+    border-radius:16px;
+    padding:12px 14px;
+  }
+
+  @media (max-width: 980px){
+    .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .founder-hero{ grid-template-columns: 1fr; }
+    .hero-image{ height: 200px; }
+    .detail{ grid-template-columns: 1fr; }
+    .detail-image{ height: 260px; }
+    .brand-title{ font-size: 36px; }
+    .hint{ text-align:left; }
+    .actions{ flex-direction:column; align-items:flex-start; }
+    .pill{ max-width: 100%; }
+  }
+  @media (max-width: 560px){
+    .grid{ grid-template-columns: 1fr; }
+    .brand-title{ font-size: 30px; }
+  }
+`;\
